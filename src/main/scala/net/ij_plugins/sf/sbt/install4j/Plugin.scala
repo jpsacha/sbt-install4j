@@ -11,7 +11,7 @@ import sbt._
 import sbt.Keys._
 import java.io.{IOException, File}
 
-/** SBT plugin that helps create runtime directory structure for ImageJ plugin development. */
+/** SBT plugin for building installers with Install4J. */
 object Plugin extends sbt.Plugin {
 
   import Install4JKeys._

@@ -6,7 +6,7 @@ organization := "net.sf.ij-plugins"
 
 version := "0.0.1-SNAPSHOT"
 
-description := "SBT plugin that helps create runtime directory structure for ImageJ plugin development."
+description := "SBT plugin for building installers with Install4J."
 
 homepage := Some(url("http://github.com/jpsacha/sbt-install4j"))
 
@@ -42,7 +42,7 @@ publishTo <<= version {
 
 pomExtra :=
   <scm>
-    <url>git@github.com:jpsacha/sbt-imagej.git</url>
+    <url>git@github.com:jpsacha/sbt-install4j.git</url>
     <connection>scm:git@github.com:jpsacha/sbt-install4j.git</connection>
   </scm>
     <developers>
