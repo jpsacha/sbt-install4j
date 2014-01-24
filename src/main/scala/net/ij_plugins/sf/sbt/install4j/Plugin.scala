@@ -43,7 +43,7 @@ object Plugin extends sbt.Plugin {
         install4jProject,
         verbose = install4jVerbose.value,
         streams.value)
-    }, //.dependsOn(packageBin in Compile),
+    },
 
     install4jHomeDir := file("C:/Program Files/install4j5"),
 
@@ -52,9 +52,6 @@ object Plugin extends sbt.Plugin {
     install4jVerbose := false
   )
 
-  private def log(msg: String) {
-    println("[sbt-install4j] " + msg)
-  }
 
   private def runInstall4J(compiler: File,
                            project: File,
@@ -62,10 +59,10 @@ object Plugin extends sbt.Plugin {
                            taskStreams: TaskStreams) {
     val logger = taskStreams.log
 
-    logger.debug("install4jCompiler: " + compiler.getAbsolutePath)
+    logger.debug("[install4j] compiler: " + compiler.getAbsolutePath)
     if (!compiler.exists) throw new IOException("Install4J Compiler not found: " + compiler.getAbsolutePath)
 
-    log("project: " + project.getAbsolutePath)
+    logger.debug("[install4j] project: " + project.getAbsolutePath)
     if (!project.exists) {
       throw new IOException("install4j project file not found: " + project.getAbsolutePath)
     }
@@ -74,7 +71,7 @@ object Plugin extends sbt.Plugin {
     if (verbose) commandLine += " --verbose "
     commandLine += "\"" + project.getPath + "\""
 
-    log("Executing command: " + commandLine)
+    logger.debug("[install4j] executing command: " + commandLine)
     val output = Process(commandLine).lines
     output.foreach(println)
   }
