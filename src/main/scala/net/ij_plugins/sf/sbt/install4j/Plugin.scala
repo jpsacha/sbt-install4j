@@ -30,7 +30,7 @@ object Plugin extends sbt.Plugin {
       "Builds Install4J project.")
 
     lazy val install4jCopyDependedJars = TaskKey[File]("install4jCopyDependedJars",
-      "Copies project dependencies to directory `install4jDependedJarsDir`")
+      "Copies project dependencies to directory `install4jDependedJarsDir`.")
 
     lazy val install4jCopyDependedJarsExclusions = SettingKey[Seq[String]]("install4jCopyDependedJarsExclusions",
       "List of regex expressions that match files that will be excluded from copying.")
@@ -39,7 +39,7 @@ object Plugin extends sbt.Plugin {
       "if `true` dependent jars will be copies, if `false` they will be not.")
 
     lazy val install4jHomeDir = SettingKey[File]("install4jHomeDir",
-      "Install4J installation directory. It assumes that Install4J compiler is in subdirectory `bin/install4jc.exe`")
+      "Install4J installation directory. It assumes that Install4J compiler is in subdirectory `bin/install4jc.exe`.")
 
     lazy val install4jProjectFile = SettingKey[String]("install4jProjectFile",
       "The install4j project file that should be build.")
@@ -49,6 +49,10 @@ object Plugin extends sbt.Plugin {
 
     lazy val install4jVerbose = SettingKey[Boolean]("install4jVerbose",
       "Enables verbose mode.")
+
+    lazy val install4jRelease = SettingKey[String]("install4jRelease",
+      "Override the application version. " +
+        "Version number components can be alphanumeric and should be separated by dots, dashes or underscores. ")
 
     lazy val install4jCompilerVariables = SettingKey[Map[String, String]]("install4jCompilerVariables",
       "Override a compiler variable with a different value. " +
@@ -69,6 +73,7 @@ object Plugin extends sbt.Plugin {
         install4jCompiler,
         install4jProject,
         verbose = install4jVerbose.value,
+        release = install4jRelease.value,
         compilerVariables = install4jCompilerVariables.value,
         streams.value)
     },
@@ -96,6 +101,8 @@ object Plugin extends sbt.Plugin {
     install4jProjectFile := "installer/installer.install4j",
 
     install4jVerbose := false,
+
+    install4jRelease := "",
 
     install4jCompilerVariables := Map.empty
   )
@@ -129,6 +136,7 @@ object Plugin extends sbt.Plugin {
   private def runInstall4J(compiler: File,
                            project: File,
                            verbose: Boolean,
+                           release: String,
                            compilerVariables: Map[String, String],
                            taskStreams: TaskStreams) {
     val logger = taskStreams.log
@@ -142,9 +150,15 @@ object Plugin extends sbt.Plugin {
     }
 
     var commandLine = "\"" + compiler.getPath + "\""
+
+    // Verbose
     if (verbose) commandLine += " --verbose "
 
-    if (!compilerVariables.isEmpty) {
+    // Release
+    if (release.trim.nonEmpty) commandLine += " --release=" + release.trim
+
+    // Compiler variables
+    if (compilerVariables.nonEmpty) {
       commandLine += " -D \"" +
         compilerVariables.map {
           case (k, v) => k.trim + "=" + v.trim
