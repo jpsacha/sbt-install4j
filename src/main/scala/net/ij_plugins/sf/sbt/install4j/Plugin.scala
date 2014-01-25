@@ -28,39 +28,75 @@ object Plugin extends sbt.Plugin {
   object Install4JKeys {
     lazy val install4j = TaskKey[Unit]("install4j", "Builds Install4J project.")
 
+    lazy val install4jCopyDependedJars = TaskKey[File]("install4jCopyDependedJars",
+      "Copies project dependencies to directory `install4jDependedJarsDir`")
+
+    lazy val install4jCopyDependedJarsEnabled = SettingKey[Boolean]("install4jCopyDependedJarsEnabled",
+      "if `true` dependent jars will be copies, if `false` they will be not.")
+
     lazy val install4jHomeDir = SettingKey[File]("install4jHomeDir",
       "Install4J installation directory. It assumes that Install4J compiler is in subdirectory `bin/install4jc.exe`")
 
     lazy val install4jProjectFile = SettingKey[String]("install4jProjectFile",
       "The install4j project file that should be build.")
 
-    lazy val install4jVerbose = SettingKey[Boolean]("install4jVerbose","Enables verbose mode.")
+    lazy val install4jDependedJarsDir = SettingKey[String]("install4jDependedJarsDir",
+      "Location where dependent jars will be copied.")
+
+    lazy val install4jVerbose = SettingKey[Boolean]("install4jVerbose", "Enables verbose mode.")
   }
 
   lazy val install4jSettings: Seq[Def.Setting[_]] = Seq(
-
     install4j := {
-
-      // Depends on `packageBin`
-      val p = (packageBin in Compile).value
+      // Run dependent tasks first
+      val _v1 = (packageBin in Compile).value
+      assert(_v1 != null)
+      val _v2 = install4jCopyDependedJars.value
+      assert(_v2 != null)
 
       val install4jCompiler = new File(install4jHomeDir.value, "bin/install4jc.exe").getCanonicalFile
       val install4jProject = new File(baseDirectory.value, install4jProjectFile.value).getCanonicalFile
-
       runInstall4J(
         install4jCompiler,
         install4jProject,
         verbose = install4jVerbose.value,
         streams.value)
     },
-
+    install4jCopyDependedJars := copyDependedJars(
+      (dependencyClasspath in Runtime).value,
+      crossTarget.value,
+      streams.value
+    ),
+    install4jCopyDependedJarsEnabled := true,
     install4jHomeDir := file("C:/Program Files/install4j5"),
-
     install4jProjectFile := "installer/installer.install4j",
-
     install4jVerbose := false
   )
 
+  private def prefix = "[sbt-install4j] "
+
+  private def copyDependedJars(libs: Seq[Attributed[File]],
+                               crossTargetDir: File,
+                               taskStreams: TaskStreams): File = {
+    val logger = taskStreams.log
+    val libDir = crossTargetDir / "lib"
+    libs.foreach { lib =>
+      val file = lib.data
+      if (file.exists) {
+        if (file.isDirectory) {
+          logger.warn(prefix + "Dependent directories not supported. Consider using `exportJars := true`")
+        } else {
+          if (file.name.toLowerCase.endsWith(".jar")) {
+            IO.copyFile(file, libDir / file.name)
+          } else {
+            logger.warn(prefix + "Skipping non *.jar: " + file.absolutePath)
+          }
+        }
+      }
+    }
+
+    libDir
+  }
 
   private def runInstall4J(compiler: File,
                            project: File,
@@ -68,10 +104,10 @@ object Plugin extends sbt.Plugin {
                            taskStreams: TaskStreams) {
     val logger = taskStreams.log
 
-    logger.debug("[install4j] compiler: " + compiler.getAbsolutePath)
+    logger.debug(prefix + "compiler: " + compiler.getAbsolutePath)
     if (!compiler.exists) throw new IOException("Install4J Compiler not found: " + compiler.getAbsolutePath)
 
-    logger.debug("[install4j] project: " + project.getAbsolutePath)
+    logger.debug(prefix + "project: " + project.getAbsolutePath)
     if (!project.exists) {
       throw new IOException("install4j project file not found: " + project.getAbsolutePath)
     }
@@ -80,7 +116,7 @@ object Plugin extends sbt.Plugin {
     if (verbose) commandLine += " --verbose "
     commandLine += "\"" + project.getPath + "\""
 
-    logger.debug("[install4j] executing command: " + commandLine)
+    logger.debug(prefix + "executing command: " + commandLine)
     val output = Process(commandLine).lines
     output.foreach(println)
   }
