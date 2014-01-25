@@ -26,7 +26,8 @@ object Plugin extends sbt.Plugin {
   import Install4JKeys._
 
   object Install4JKeys {
-    lazy val install4j = TaskKey[Unit]("install4j", "Builds Install4J project.")
+    lazy val install4j = TaskKey[Unit]("install4j",
+      "Builds Install4J project.")
 
     lazy val install4jCopyDependedJars = TaskKey[File]("install4jCopyDependedJars",
       "Copies project dependencies to directory `install4jDependedJarsDir`")
@@ -46,7 +47,12 @@ object Plugin extends sbt.Plugin {
     lazy val install4jDependedJarsDir = SettingKey[String]("install4jDependedJarsDir",
       "Location where dependent jars will be copied.")
 
-    lazy val install4jVerbose = SettingKey[Boolean]("install4jVerbose", "Enables verbose mode.")
+    lazy val install4jVerbose = SettingKey[Boolean]("install4jVerbose",
+      "Enables verbose mode.")
+
+    lazy val install4jCompilerVariables = SettingKey[Map[String, String]]("install4jCompilerVariables",
+      "Override a compiler variable with a different value. " +
+        "In the map, the `key` is variable's name, the `value` is variable's value.")
   }
 
   lazy val install4jSettings: Seq[Def.Setting[_]] = Seq(
@@ -63,6 +69,7 @@ object Plugin extends sbt.Plugin {
         install4jCompiler,
         install4jProject,
         verbose = install4jVerbose.value,
+        compilerVariables = install4jCompilerVariables.value,
         streams.value)
     },
 
@@ -88,7 +95,9 @@ object Plugin extends sbt.Plugin {
 
     install4jProjectFile := "installer/installer.install4j",
 
-    install4jVerbose := false
+    install4jVerbose := false,
+
+    install4jCompilerVariables := Map.empty
   )
 
   private def prefix = "[sbt-install4j] "
@@ -120,6 +129,7 @@ object Plugin extends sbt.Plugin {
   private def runInstall4J(compiler: File,
                            project: File,
                            verbose: Boolean,
+                           compilerVariables: Map[String, String],
                            taskStreams: TaskStreams) {
     val logger = taskStreams.log
 
@@ -133,6 +143,15 @@ object Plugin extends sbt.Plugin {
 
     var commandLine = "\"" + compiler.getPath + "\""
     if (verbose) commandLine += " --verbose "
+
+    if (!compilerVariables.isEmpty) {
+      commandLine += " -D \"" +
+        compilerVariables.map {
+          case (k, v) => k.trim + "=" + v.trim
+        }.mkString(",") +
+        "\""
+    }
+
     commandLine += "\"" + project.getPath + "\""
 
     logger.debug(prefix + "executing command: " + commandLine)
