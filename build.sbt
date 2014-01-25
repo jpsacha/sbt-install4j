@@ -4,7 +4,7 @@ name := "sbt-install4j"
 
 organization := "net.sf.ij-plugins"
 
-version := "0.0.1-SNAPSHOT"
+version := "0.0.2-SNAPSHOT"
 
 description := "SBT plugin for building installers with Install4J."
 

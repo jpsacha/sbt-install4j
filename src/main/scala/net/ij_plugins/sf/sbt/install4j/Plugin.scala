@@ -31,6 +31,9 @@ object Plugin extends sbt.Plugin {
     lazy val install4jCopyDependedJars = TaskKey[File]("install4jCopyDependedJars",
       "Copies project dependencies to directory `install4jDependedJarsDir`")
 
+    lazy val install4jCopyDependedJarsExclusions = SettingKey[Seq[String]]("install4jCopyDependedJarsExclusions",
+      "List of regex expressions that match files that will be excluded from copying.")
+
     lazy val install4jCopyDependedJarsEnabled = SettingKey[Boolean]("install4jCopyDependedJarsEnabled",
       "if `true` dependent jars will be copies, if `false` they will be not.")
 
@@ -62,14 +65,29 @@ object Plugin extends sbt.Plugin {
         verbose = install4jVerbose.value,
         streams.value)
     },
+
     install4jCopyDependedJars := copyDependedJars(
       (dependencyClasspath in Runtime).value,
       crossTarget.value,
+      install4jCopyDependedJarsExclusions.value,
       streams.value
     ),
+
+    install4jCopyDependedJarsExclusions := Seq(
+      // Source archives
+      """\S*-src\.\S*""", """\S*-sources\.\S*""", """\S*_src_\S*""",
+      // Javadoc
+      """\S*-javadoc\.\S*""", """\S*_javadoc_\S*""",
+      // Scaladoc
+      """\S*-scaladoc\.\S*""", """\S*_scaladoc_\S*"""
+    ),
+
     install4jCopyDependedJarsEnabled := true,
+
     install4jHomeDir := file("C:/Program Files/install4j5"),
+
     install4jProjectFile := "installer/installer.install4j",
+
     install4jVerbose := false
   )
 
@@ -77,6 +95,7 @@ object Plugin extends sbt.Plugin {
 
   private def copyDependedJars(libs: Seq[Attributed[File]],
                                crossTargetDir: File,
+                               exclusions: Seq[String],
                                taskStreams: TaskStreams): File = {
     val logger = taskStreams.log
     val libDir = crossTargetDir / "lib"
@@ -85,7 +104,7 @@ object Plugin extends sbt.Plugin {
       if (file.exists) {
         if (file.isDirectory) {
           logger.warn(prefix + "Dependent directories not supported. Consider using `exportJars := true`")
-        } else {
+        } else if (exclusions.forall(!file.name.matches(_))) {
           if (file.name.toLowerCase.endsWith(".jar")) {
             IO.copyFile(file, libDir / file.name)
           } else {
