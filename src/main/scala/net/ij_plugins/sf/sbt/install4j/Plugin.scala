@@ -152,7 +152,7 @@ object Plugin extends sbt.Plugin {
     var commandLine = "\"" + compiler.getPath + "\""
 
     // Verbose
-    if (verbose) commandLine += " --verbose "
+    if (verbose) commandLine += " --verbose"
 
     // Release
     if (release.trim.nonEmpty) commandLine += " --release=" + release.trim
@@ -166,7 +166,7 @@ object Plugin extends sbt.Plugin {
         "\""
     }
 
-    commandLine += "\"" + project.getPath + "\""
+    commandLine += " \"" + project.getPath + "\""
 
     logger.debug(prefix + "executing command: " + commandLine)
     val output = Process(commandLine).lines

@@ -1,8 +1,13 @@
+import SonatypeKeys._
+
+// Import default Sonatype publish settings.
+sonatypeSettings
+
 sbtPlugin := true
 
 name := "sbt-install4j"
 
-organization := "net.sf.ij-plugins"
+organization := "com.github.jpsacha"
 
 version := "0.0.2-SNAPSHOT"
 
@@ -18,13 +23,7 @@ licenses := Seq("GPLv3" -> url("http://www.gnu.org/licenses/gpl.html"))
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
-publishArtifact in(Compile, packageBin) := true
-
 publishArtifact in(Test, packageBin) := false
-
-publishArtifact in(Compile, packageDoc) := true
-
-publishArtifact in(Compile, packageSrc) := true
 
 publishArtifact in(Test, packageDoc) := false
 
