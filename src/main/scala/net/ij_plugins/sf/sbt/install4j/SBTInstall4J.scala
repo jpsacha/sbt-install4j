@@ -16,16 +16,15 @@
 
 package net.ij_plugins.sf.sbt.install4j
 
-import sbt._
+import java.io.{File, IOException}
+
 import sbt.Keys._
-import java.io.{IOException, File}
+import sbt._
 
 /** SBT plugin for building installers with Install4J. */
-object Plugin extends sbt.Plugin {
+object SBTInstall4J extends sbt.AutoPlugin {
 
-  import Install4JKeys._
-
-  object Install4JKeys {
+  object autoImport {
     lazy val install4j = TaskKey[Unit]("install4j",
       "Builds Install4J project.")
 
@@ -59,7 +58,9 @@ object Plugin extends sbt.Plugin {
         "In the map, the `key` is variable's name, the `value` is variable's value.")
   }
 
-  lazy val install4jSettings: Seq[Def.Setting[_]] = Seq(
+  import net.ij_plugins.sf.sbt.install4j.SBTInstall4J.autoImport._
+
+  override def projectSettings: Seq[Def.Setting[_]] = Seq(
     install4j := {
       // Run dependent tasks first
       val _v1 = (packageBin in Compile).value
