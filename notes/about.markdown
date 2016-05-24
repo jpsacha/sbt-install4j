@@ -1,0 +1,2 @@
+[sbt-install4j](https://github.com/jpsacha/sbt-install4j) is an [SBT](http://www.scala-sbt.org/) plugin for building installers with 
+[Install4J](http://www.ej-technologies.com/products/install4j/overview.html).
