@@ -1,3 +1,2 @@
-resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-
-addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.0.0")
+// [[https://github.com/jpsacha/sbt-install4j]]
+addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.1.0-SNAPSHOT")
