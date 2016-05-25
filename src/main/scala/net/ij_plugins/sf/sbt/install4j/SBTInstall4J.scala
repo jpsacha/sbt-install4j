@@ -97,7 +97,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     install4jCopyDependedJarsEnabled := true,
 
-    install4jHomeDir := file("C:/Program Files/install4j5"),
+    install4jHomeDir := file("C:/Program Files/install4j6"),
 
     install4jProjectFile := "installer/installer.install4j",
 
