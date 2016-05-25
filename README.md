@@ -1,7 +1,7 @@
 sbt-install4j
 =============
 
-SBT plugin for building installers with Install4J.
+[SBT] plugin for building installers with [Install4J].
 
 Usage
 -----
@@ -63,3 +63,5 @@ SBT settings provided by  `sbt-install4j` plugin:
   In the map, the `key` is variable's name, the `value` is variable's value.
 
 
+[Install4J]: https://www.ej-technologies.com/products/install4j/overview.html
+[SBT]: http://www.scala-sbt.org/
