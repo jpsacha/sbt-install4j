@@ -13,18 +13,14 @@ Usage
 Import `sbt-install4j` plugin to use `install4j` command.
 
 ```scala
-addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.0.0")
+addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.1.0")
 ```
 
 ### build.sbt
 Sample use, add following to your `build.sbt`:
 
 ```scala
-import Install4JKeys._
-
-install4jSettings
-
-// Location of the Install4J project file
+enablePlugins(SBTInstall4J)
 install4jProjectFile := "installer/example.install4j"
 ```
 

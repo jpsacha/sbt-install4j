@@ -1,0 +1,2 @@
+* Moved to `autoPlugin` setup.
+* Using Install4J v.6 as default installer compiler.
