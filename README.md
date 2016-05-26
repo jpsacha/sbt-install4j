@@ -1,7 +1,7 @@
 sbt-install4j
 =============
 
-SBT plugin for building installers with Install4J.
+[SBT] plugin for building installers with [Install4J].
 
 Usage
 -----
@@ -13,18 +13,14 @@ Usage
 Import `sbt-install4j` plugin to use `install4j` command.
 
 ```scala
-addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.0.0")
+addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.1.0")
 ```
 
 ### build.sbt
 Sample use, add following to your `build.sbt`:
 
 ```scala
-import Install4JKeys._
-
-install4jSettings
-
-// Location of the Install4J project file
+enablePlugins(SBTInstall4J)
 install4jProjectFile := "installer/example.install4j"
 ```
 
@@ -67,3 +63,5 @@ SBT settings provided by  `sbt-install4j` plugin:
   In the map, the `key` is variable's name, the `value` is variable's value.
 
 
+[Install4J]: https://www.ej-technologies.com/products/install4j/overview.html
+[SBT]: http://www.scala-sbt.org/
