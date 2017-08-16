@@ -13,7 +13,7 @@ Usage
 Import `sbt-install4j` plugin to use `install4j` command.
 
 ```scala
-addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.1.0")
+addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.1.1")
 ```
 
 ### build.sbt

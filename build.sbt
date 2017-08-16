@@ -2,7 +2,7 @@
 
 name                 := "sbt-install4j"
 organization         := "com.github.jpsacha"
-version              := "1.1.0"
+version              := "1.1.1"
 
 homepage             := Some(url("http://github.com/jpsacha/sbt-install4j"))
 organizationHomepage := Some(url("http://ij-plugins.sf.net"))
@@ -22,13 +22,13 @@ publishArtifact in(Test, packageSrc) := false
 
 //publishMavenStyle := false
 
-publishTo <<= version {
+publishTo := version {
   version: String =>
     if (version.contains("-SNAPSHOT"))
       Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
     else
       Some("Sonatype Nexus Releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-}
+}.value
 
 pomExtra :=
   <scm>
@@ -42,3 +42,5 @@ pomExtra :=
         <url>https://github.com/jpsacha</url>
       </developer>
     </developers>
+
+shellPrompt in ThisBuild := { state => "sbt:"+Project.extract(state).currentRef.project + "> " }

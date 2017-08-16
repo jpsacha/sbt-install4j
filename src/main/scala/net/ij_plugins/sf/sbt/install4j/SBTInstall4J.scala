@@ -21,39 +21,51 @@ import java.io.{File, IOException}
 import sbt.Keys._
 import sbt._
 
+import scala.sys.process.Process
+
 /** SBT plugin for building installers with Install4J. */
 object SBTInstall4J extends sbt.AutoPlugin {
 
   object autoImport {
-    lazy val install4j = TaskKey[Unit]("install4j",
+    lazy val install4j: TaskKey[Unit] = TaskKey[Unit](
+      "install4j",
       "Builds Install4J project.")
 
-    lazy val install4jCopyDependedJars = TaskKey[File]("install4jCopyDependedJars",
+    lazy val install4jCopyDependedJars: TaskKey[File] = TaskKey[File](
+      "install4jCopyDependedJars",
       "Copies project dependencies to directory `install4jDependedJarsDir`.")
 
-    lazy val install4jCopyDependedJarsExclusions = SettingKey[Seq[String]]("install4jCopyDependedJarsExclusions",
+    lazy val install4jCopyDependedJarsExclusions: SettingKey[Seq[String]] = SettingKey[Seq[String]](
+      "install4jCopyDependedJarsExclusions",
       "List of regex expressions that match files that will be excluded from copying.")
 
-    lazy val install4jCopyDependedJarsEnabled = SettingKey[Boolean]("install4jCopyDependedJarsEnabled",
+    lazy val install4jCopyDependedJarsEnabled: SettingKey[Boolean] = SettingKey[Boolean](
+      "install4jCopyDependedJarsEnabled",
       "if `true` dependent jars will be copies, if `false` they will be not.")
 
-    lazy val install4jHomeDir = SettingKey[File]("install4jHomeDir",
+    lazy val install4jHomeDir: SettingKey[File] = SettingKey[File](
+      "install4jHomeDir",
       "Install4J installation directory. It assumes that Install4J compiler is in subdirectory `bin/install4jc.exe`.")
 
-    lazy val install4jProjectFile = SettingKey[String]("install4jProjectFile",
+    lazy val install4jProjectFile: SettingKey[String] = SettingKey[String](
+      "install4jProjectFile",
       "The install4j project file that should be build.")
 
-    lazy val install4jDependedJarsDir = SettingKey[String]("install4jDependedJarsDir",
+    lazy val install4jDependedJarsDir: SettingKey[String] = SettingKey[String](
+      "install4jDependedJarsDir",
       "Location where dependent jars will be copied.")
 
-    lazy val install4jVerbose = SettingKey[Boolean]("install4jVerbose",
+    lazy val install4jVerbose: SettingKey[Boolean] = SettingKey[Boolean](
+      "install4jVerbose",
       "Enables verbose mode.")
 
-    lazy val install4jRelease = SettingKey[String]("install4jRelease",
+    lazy val install4jRelease: SettingKey[String] = SettingKey[String](
+      "install4jRelease",
       "Override the application version. " +
         "Version number components can be alphanumeric and should be separated by dots, dashes or underscores. ")
 
-    lazy val install4jCompilerVariables = SettingKey[Map[String, String]]("install4jCompilerVariables",
+    lazy val install4jCompilerVariables: SettingKey[Map[String, String]] = SettingKey[Map[String, String]](
+      "install4jCompilerVariables",
       "Override a compiler variable with a different value. " +
         "In the map, the `key` is variable's name, the `value` is variable's value.")
   }
@@ -88,11 +100,15 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     install4jCopyDependedJarsExclusions := Seq(
       // Source archives
-      """\S*-src\.\S*""", """\S*-sources\.\S*""", """\S*_src_\S*""",
+      """\S*-src\.\S*""",
+      """\S*-sources\.\S*""",
+      """\S*_src_\S*""",
       // Javadoc
-      """\S*-javadoc\.\S*""", """\S*_javadoc_\S*""",
+      """\S*-javadoc\.\S*""",
+      """\S*_javadoc_\S*""",
       // Scaladoc
-      """\S*-scaladoc\.\S*""", """\S*_scaladoc_\S*"""
+      """\S*-scaladoc\.\S*""",
+      """\S*_scaladoc_\S*"""
     ),
 
     install4jCopyDependedJarsEnabled := true,
