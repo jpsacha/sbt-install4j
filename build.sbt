@@ -1,8 +1,9 @@
 // @formatter:off
+sbtPlugin := true
 
 name                 := "sbt-install4j"
 organization         := "com.github.jpsacha"
-version              := "1.1.1"
+version              := "1.2.0"
 
 homepage             := Some(url("http://github.com/jpsacha/sbt-install4j"))
 organizationHomepage := Some(url("http://ij-plugins.sf.net"))
@@ -10,9 +11,7 @@ startYear            := Some(2014)
 licenses             := Seq("GPLv3" -> url("http://www.gnu.org/licenses/gpl.html"))
 description          := "SBT plugin for building installers with Install4J."
 
-scalaVersion := "2.10.6"
-
-sbtPlugin := true
+scalaVersion := "2.12.3"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
@@ -20,7 +19,7 @@ publishArtifact in(Test, packageBin) := false
 publishArtifact in(Test, packageDoc) := false
 publishArtifact in(Test, packageSrc) := false
 
-//publishMavenStyle := false
+shellPrompt in ThisBuild := { state => "sbt:"+Project.extract(state).currentRef.project + "> " }
 
 publishTo := version {
   version: String =>
@@ -30,17 +29,3 @@ publishTo := version {
       Some("Sonatype Nexus Releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
 }.value
 
-pomExtra :=
-  <scm>
-    <url>git@github.com:jpsacha/sbt-install4j.git</url>
-    <connection>scm:git@github.com:jpsacha/sbt-install4j.git</connection>
-  </scm>
-    <developers>
-      <developer>
-        <id>jpsacha</id>
-        <name>Jarek Sacha</name>
-        <url>https://github.com/jpsacha</url>
-      </developer>
-    </developers>
-
-shellPrompt in ThisBuild := { state => "sbt:"+Project.extract(state).currentRef.project + "> " }
