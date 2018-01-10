@@ -18,7 +18,10 @@ package net.ij_plugins.sf.sbt.install4j
 
 import java.io.{File, IOException}
 
+import sbt.Keys._
 import sbt._
+
+import scala.sys.process.Process
 
 /** SBT plugin for building installers with Install4J. */
 object SBTInstall4J extends sbt.AutoPlugin {
