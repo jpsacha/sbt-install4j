@@ -6,14 +6,14 @@ sbt-install4j
 Usage
 -----
 
-`sbt-install4j` is available for sbt-0.13.x.
+`sbt-install4j` is available for sbt-1.x.
 
 ### project/plugins.sbt
 
 Import `sbt-install4j` plugin to use `install4j` command.
 
 ```scala
-addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.1.0")
+addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.2.0")
 ```
 
 ### build.sbt
