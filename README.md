@@ -67,7 +67,7 @@ SBT settings provided by  `sbt-install4j` plugin:
   
 * `install4jHomeDir` : File - __Deprecated__. Install4J installation directory. It assumes that Install4J compiler is in subdirectory `bin`. Default can be set with environment variable `INSTALL4J_HOME`. This option is deprecated, use environment variable `INSTALL4JC_FILE` or setting `install4jcFile` instead.
  
-## Determining location of Install4J libraries and compiler
+## Determining location of Install4J compiler
 
 The `sbt-install4j` executes Install4J compiler. It needs to know its location. It will attempts to determine location base on the OS used. On Windows it is assumed to be:
 ```
