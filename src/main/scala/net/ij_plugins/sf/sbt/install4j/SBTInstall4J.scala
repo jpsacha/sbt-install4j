@@ -182,27 +182,30 @@ object SBTInstall4J extends sbt.AutoPlugin {
         "" + project.getAbsolutePath)
     }
 
-    var commandLine = "\"" + compiler.getPath + "\""
+    val commandLine = mutable.ListBuffer.empty[String]
+
+    commandLine += compiler.getCanonicalPath
 
     // Verbose
-    if (verbose) commandLine += " --verbose"
+    if (verbose) commandLine += "--verbose"
 
     // Release
-    if (release.trim.nonEmpty) commandLine += " --release=" + release.trim
+    if (release.trim.nonEmpty) commandLine += "--release=" + release.trim
 
     // Compiler variables
     if (compilerVariables.nonEmpty) {
-      commandLine += " -D \"" +
+      commandLine += "-D"
+      commandLine += "\"" +
         compilerVariables.map {
           case (k, v) => k.trim + "=" + v.trim
         }.mkString(",") +
         "\""
     }
 
-    commandLine += " \"" + project.getPath + "\""
+    commandLine += project.getPath
 
-    logger.debug(prefix + "executing command: " + commandLine)
-    val output = Process(commandLine).lines
+    logger.debug(prefix + "executing command: " + commandLine.mkString(" "))
+    val output = Process(commandLine).lineStream
     output.foreach(println)
   }
 }
