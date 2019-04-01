@@ -21,6 +21,7 @@ import java.io.{File, IOException}
 import sbt.Keys._
 import sbt._
 
+import scala.collection.mutable
 import scala.sys.process.Process
 
 /** SBT plugin for building installers with Install4J. */
@@ -45,7 +46,18 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     lazy val install4jHomeDir: SettingKey[File] = SettingKey[File](
       "install4jHomeDir",
-      "Install4J installation directory. It assumes that Install4J compiler is in subdirectory `bin/install4jc.exe`.")
+      "Deprecated. Install4J installation directory. " +
+        "It assumes that Install4J compiler is in subdirectory `bin`. " +
+        s"Default can be set with environment variable ${Defaults.INSTALL4J_HOME_ENV}. " +
+        s"This option is deprecated, use environment variable ${Defaults.INSTALL4JC_FILE_ENV} " +
+        "or setting `install4jcFile` instead.")
+
+    lazy val install4jcFile: SettingKey[File] = SettingKey[File](
+      "install4jcFile",
+      "Location of the install4j's command line compiler `install4jc[.exe]`. " +
+        "It can be found in the `bin` directory of the install4j installation. " +
+        s"Default can be set with environment variable ${Defaults.INSTALL4JC_FILE_ENV}." +
+        "")
 
     lazy val install4jProjectFile: SettingKey[String] = SettingKey[String](
       "install4jProjectFile",
@@ -80,7 +92,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       val _v2 = install4jCopyDependedJars.value
       assert(_v2 != null)
 
-      val install4jCompiler = new File(install4jHomeDir.value, "bin/install4jc.exe").getCanonicalFile
+      val install4jCompiler = Defaults.install4jCompilerFile().getCanonicalFile
       val install4jProject = new File(baseDirectory.value, install4jProjectFile.value).getCanonicalFile
       runInstall4J(
         install4jCompiler,
@@ -113,7 +125,9 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     install4jCopyDependedJarsEnabled := true,
 
-    install4jHomeDir := file("C:/Program Files/install4j7"),
+    install4jHomeDir := file(Defaults.install4jHomeDir()),
+
+    install4jcFile := file(Defaults.install4jCompilerFile().getCanonicalPath),
 
     install4jProjectFile := "installer/installer.install4j",
 
@@ -159,11 +173,13 @@ object SBTInstall4J extends sbt.AutoPlugin {
     val logger = taskStreams.log
 
     logger.debug(prefix + "compiler: " + compiler.getAbsolutePath)
-    if (!compiler.exists) throw new IOException("Install4J Compiler not found: " + compiler.getAbsolutePath)
+    if (!compiler.exists) throw new IOException(
+      "Install4J Compiler not found at: " + compiler.getAbsolutePath)
 
     logger.debug(prefix + "project: " + project.getAbsolutePath)
     if (!project.exists) {
-      throw new IOException("install4j project file not found: " + project.getAbsolutePath)
+      throw new IOException("install4j project file not found: " +
+        "" + project.getAbsolutePath)
     }
 
     var commandLine = "\"" + compiler.getPath + "\""

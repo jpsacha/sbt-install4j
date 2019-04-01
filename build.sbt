@@ -3,7 +3,7 @@ sbtPlugin := true
 
 name                 := "sbt-install4j"
 organization         := "com.github.jpsacha"
-version              := "1.2.1-SHAPSHOT"
+version              := "1.3.0-SHAPSHOT"
 
 homepage             := Some(url("http://github.com/jpsacha/sbt-install4j"))
 organizationHomepage := Some(url("http://ij-plugins.sf.net"))
@@ -14,6 +14,8 @@ description          := "SBT plugin for building installers with Install4J."
 scalaVersion := "2.12.8"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.7" % "test"
 
 publishArtifact in(Test, packageBin) := false
 publishArtifact in(Test, packageDoc) := false
