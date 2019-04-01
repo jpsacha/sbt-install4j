@@ -1,0 +1,20 @@
+sudo: false
+
+language: scala
+scala:
+- 2.12.8
+
+jdk:
+  - oraclejdk8
+  
+install: true
+
+script:
+  - java -version
+  - sbt test
+
+branches:
+  only:
+    - master
+    - develop
+
