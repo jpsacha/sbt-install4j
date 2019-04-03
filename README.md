@@ -33,7 +33,21 @@ install4jProjectFile := "installer/example.install4j"
 SBT tasks provided by  `sbt-install4j` plugin:
 
 * `install4j` : Task - 
-  Builds Install4J project
+  Builds Install4J project. Simple usage from SBT REPL
+  ```
+  sbt> install4j
+  ```
+  It will build project defined in by setting `install4jProjectFile`
+  
+  It can take optional arguments that are passed by to the Install4J compiler. 
+  Refer to `install4jc` documentation in [Install4J Help](https://www.ej-technologies.com/resources/install4j/help/doc/#install4j.cli) for list of supported command line options. You can print option summary from SBT REPL using
+  ```
+  sbt> install4j --help
+  ```
+  Example of only building `windows` media type
+  ```
+  sbt> install4j -m windows
+  ```
 
 * `install4jCopyDependedJars` : Task - 
   Copies project dependencies to directory `install4jDependedJarsDir`
@@ -49,10 +63,12 @@ SBT settings provided by  `sbt-install4j` plugin:
 
 * `install4jcFile` : File -  Location of the install4j's command line compiler `install4jc[.exe]`. It can be found in the `bin` directory of the install4j installation. Default can be set with environment variable `INSTALL4JC_FILE`.
 
-* `install4jProjectFile` : String - The install4j project file that should be build.
+* `install4jProjectFile` : String - Relative path to the install4j project file that should be build.
 
 * `install4jDependedJarsDir` : String -
   Location where dependent jars will be copied.
+  
+* `install4jExtraOptions` : Seq[String] - "Additional command line options passed to the compiler."
 
 * `install4jVerbose` : Boolean -
   Enables verbose mode.
@@ -87,6 +103,13 @@ On Linux:
 
 If the Install4J is installed in a different location you can specify location of the compiler using the environment variable `INSTALL4JC_FILE` or setting `install4jcFile`. For multi-platform builds it is preferred to use the environment variable `INSTALL4JC_FILE`.
 
+## Tips & Tricks
+
+To see debugging information set SBT logging level to `debug`:
+```cmd
+sbt> debug
+```
+Look in the log for lines prefixed with `[debug] [sbt-install4j]`.
 
 
 

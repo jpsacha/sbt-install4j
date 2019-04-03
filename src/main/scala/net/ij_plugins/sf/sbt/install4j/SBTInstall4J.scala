@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Jarek Sacha (jpsacha -at- gmail.com)
+ * Copyright 2014-2019 Jarek Sacha (jpsacha -at- gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.{File, IOException}
 
 import sbt.Keys._
 import sbt._
+import sbt.complete.DefaultParsers._
 
 import scala.collection.mutable
 import scala.sys.process.Process
@@ -28,9 +29,11 @@ import scala.sys.process.Process
 object SBTInstall4J extends sbt.AutoPlugin {
 
   object autoImport {
-    lazy val install4j: TaskKey[Unit] = TaskKey[Unit](
+    lazy val install4j: InputKey[Unit] = InputKey[Unit](
       "install4j",
-      "Builds Install4J project.")
+      "Builds Install4J project. " +
+        "It can take optional argument that are passed by to the Install4J compiler. " +
+        "Refer to `install4jc` documentation in Install4J Help for list of supported command line options.")
 
     lazy val install4jCopyDependedJars: TaskKey[File] = TaskKey[File](
       "install4jCopyDependedJars",
@@ -61,11 +64,15 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     lazy val install4jProjectFile: SettingKey[String] = SettingKey[String](
       "install4jProjectFile",
-      "The install4j project file that should be build.")
+      "Relative path to the install4j project file that should be build.")
 
     lazy val install4jDependedJarsDir: SettingKey[String] = SettingKey[String](
       "install4jDependedJarsDir",
       "Location where dependent jars will be copied.")
+
+    lazy val install4jExtraOptions: SettingKey[Seq[String]] = SettingKey[Seq[String]](
+      "install4jExtraOptions",
+      "Additional command line options passed to the compiler.")
 
     lazy val install4jVerbose: SettingKey[Boolean] = SettingKey[Boolean](
       "install4jVerbose",
@@ -86,6 +93,9 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
     install4j := {
+      // get the result of parsing
+      val extraArgs: Seq[String] = spaceDelimited("<arg>").parsed
+
       // Run dependent tasks first
       val _v1 = (packageBin in Compile).value
       assert(_v1 != null)
@@ -100,6 +110,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
         verbose = install4jVerbose.value,
         release = install4jRelease.value,
         compilerVariables = install4jCompilerVariables.value,
+        extraOptions = install4jExtraOptions.value,
+        extraArgs = extraArgs,
         streams.value)
     },
 
@@ -124,6 +136,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
     ),
 
     install4jCopyDependedJarsEnabled := true,
+
+    install4jExtraOptions := Seq.empty[String],
 
     install4jHomeDir := file(Defaults.install4jHomeDir()),
 
@@ -169,6 +183,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
                            verbose: Boolean,
                            release: String,
                            compilerVariables: Map[String, String],
+                           extraOptions: Seq[String],
+                           extraArgs: Seq[String],
                            taskStreams: TaskStreams) {
     val logger = taskStreams.log
 
@@ -203,6 +219,10 @@ object SBTInstall4J extends sbt.AutoPlugin {
     }
 
     commandLine += project.getPath
+
+    commandLine ++= extraOptions
+
+    commandLine ++= extraArgs
 
     logger.debug(prefix + "executing command: " + commandLine.mkString(" "))
     val output = Process(commandLine).lineStream
