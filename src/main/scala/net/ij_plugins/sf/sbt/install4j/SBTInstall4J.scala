@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Jarek Sacha (jpsacha -at- gmail.com)
+ * Copyright 2014-2019 Jarek Sacha (jpsacha -at- gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,20 @@ import java.io.{File, IOException}
 
 import sbt.Keys._
 import sbt._
+import sbt.complete.DefaultParsers._
 
+import scala.collection.mutable
 import scala.sys.process.Process
 
 /** SBT plugin for building installers with Install4J. */
 object SBTInstall4J extends sbt.AutoPlugin {
 
   object autoImport {
-    lazy val install4j: TaskKey[Unit] = TaskKey[Unit](
+    lazy val install4j: InputKey[Unit] = InputKey[Unit](
       "install4j",
-      "Builds Install4J project.")
+      "Builds Install4J project. " +
+        "It can take optional argument that are passed by to the Install4J compiler. " +
+        "Refer to `install4jc` documentation in Install4J Help for list of supported command line options.")
 
     lazy val install4jCopyDependedJars: TaskKey[File] = TaskKey[File](
       "install4jCopyDependedJars",
@@ -45,15 +49,30 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     lazy val install4jHomeDir: SettingKey[File] = SettingKey[File](
       "install4jHomeDir",
-      "Install4J installation directory. It assumes that Install4J compiler is in subdirectory `bin/install4jc.exe`.")
+      "Deprecated. Install4J installation directory. " +
+        "It assumes that Install4J compiler is in subdirectory `bin`. " +
+        s"Default can be set with environment variable ${Defaults.INSTALL4J_HOME_ENV}. " +
+        s"This option is deprecated, use environment variable ${Defaults.INSTALL4JC_FILE_ENV} " +
+        "or setting `install4jcFile` instead.")
+
+    lazy val install4jcFile: SettingKey[File] = SettingKey[File](
+      "install4jcFile",
+      "Location of the install4j's command line compiler `install4jc[.exe]`. " +
+        "It can be found in the `bin` directory of the install4j installation. " +
+        s"Default can be set with environment variable ${Defaults.INSTALL4JC_FILE_ENV}." +
+        "")
 
     lazy val install4jProjectFile: SettingKey[String] = SettingKey[String](
       "install4jProjectFile",
-      "The install4j project file that should be build.")
+      "Relative path to the install4j project file that should be build.")
 
     lazy val install4jDependedJarsDir: SettingKey[String] = SettingKey[String](
       "install4jDependedJarsDir",
       "Location where dependent jars will be copied.")
+
+    lazy val install4jExtraOptions: SettingKey[Seq[String]] = SettingKey[Seq[String]](
+      "install4jExtraOptions",
+      "Additional command line options passed to the compiler.")
 
     lazy val install4jVerbose: SettingKey[Boolean] = SettingKey[Boolean](
       "install4jVerbose",
@@ -74,13 +93,16 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
     install4j := {
+      // get the result of parsing
+      val extraArgs: Seq[String] = spaceDelimited("<arg>").parsed
+
       // Run dependent tasks first
       val _v1 = (packageBin in Compile).value
       assert(_v1 != null)
       val _v2 = install4jCopyDependedJars.value
       assert(_v2 != null)
 
-      val install4jCompiler = new File(install4jHomeDir.value, "bin/install4jc.exe").getCanonicalFile
+      val install4jCompiler = Defaults.install4jCompilerFile().getCanonicalFile
       val install4jProject = new File(baseDirectory.value, install4jProjectFile.value).getCanonicalFile
       runInstall4J(
         install4jCompiler,
@@ -88,6 +110,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
         verbose = install4jVerbose.value,
         release = install4jRelease.value,
         compilerVariables = install4jCompilerVariables.value,
+        extraOptions = install4jExtraOptions.value,
+        extraArgs = extraArgs,
         streams.value)
     },
 
@@ -113,7 +137,11 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     install4jCopyDependedJarsEnabled := true,
 
-    install4jHomeDir := file("C:/Program Files/install4j7"),
+    install4jExtraOptions := Seq.empty[String],
+
+    install4jHomeDir := file(Defaults.install4jHomeDir()),
+
+    install4jcFile := file(Defaults.install4jCompilerFile().getCanonicalPath),
 
     install4jProjectFile := "installer/installer.install4j",
 
@@ -155,38 +183,49 @@ object SBTInstall4J extends sbt.AutoPlugin {
                            verbose: Boolean,
                            release: String,
                            compilerVariables: Map[String, String],
+                           extraOptions: Seq[String],
+                           extraArgs: Seq[String],
                            taskStreams: TaskStreams) {
     val logger = taskStreams.log
 
     logger.debug(prefix + "compiler: " + compiler.getAbsolutePath)
-    if (!compiler.exists) throw new IOException("Install4J Compiler not found: " + compiler.getAbsolutePath)
+    if (!compiler.exists) throw new IOException(
+      "Install4J Compiler not found at: " + compiler.getAbsolutePath)
 
     logger.debug(prefix + "project: " + project.getAbsolutePath)
     if (!project.exists) {
-      throw new IOException("install4j project file not found: " + project.getAbsolutePath)
+      throw new IOException("install4j project file not found: " +
+        "" + project.getAbsolutePath)
     }
 
-    var commandLine = "\"" + compiler.getPath + "\""
+    val commandLine = mutable.ListBuffer.empty[String]
+
+    commandLine += compiler.getCanonicalPath
 
     // Verbose
-    if (verbose) commandLine += " --verbose"
+    if (verbose) commandLine += "--verbose"
 
     // Release
-    if (release.trim.nonEmpty) commandLine += " --release=" + release.trim
+    if (release.trim.nonEmpty) commandLine += "--release=" + release.trim
 
     // Compiler variables
     if (compilerVariables.nonEmpty) {
-      commandLine += " -D \"" +
+      commandLine += "-D"
+      commandLine += "\"" +
         compilerVariables.map {
           case (k, v) => k.trim + "=" + v.trim
         }.mkString(",") +
         "\""
     }
 
-    commandLine += " \"" + project.getPath + "\""
+    commandLine += project.getPath
 
-    logger.debug(prefix + "executing command: " + commandLine)
-    val output = Process(commandLine).lines
+    commandLine ++= extraOptions
+
+    commandLine ++= extraArgs
+
+    logger.debug(prefix + "executing command: " + commandLine.mkString(" "))
+    val output = Process(commandLine).lineStream
     output.foreach(println)
   }
 }
