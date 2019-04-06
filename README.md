@@ -112,7 +112,13 @@ sbt> debug
 Look in the log for lines prefixed with `[debug] [sbt-install4j]`.
 
 
+## License
+
+sbt-install4j is licensed under [Apache 2.0 license][Apache2].
+
+
 
 
 [Install4J]: https://www.ej-technologies.com/products/install4j/overview.html
 [SBT]: http://www.scala-sbt.org/
+[Apache2]: https://www.apache.org/licenses/LICENSE-2.0.html
