@@ -1,6 +1,6 @@
 name := "sbt-install4j-example"
 organization := "ij-plugins.sf.net"
-version := "1.3.0-SHAPSHOT"
+version := "1.3.0"
 
 scalaVersion := "2.12.8"
 
