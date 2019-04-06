@@ -3,4 +3,4 @@
 // For test publishing with `publishM2`
 resolvers += Resolver.mavenLocal
 
-addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.3.0-SHAPSHOT")
+addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.3.0")
