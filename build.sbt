@@ -11,11 +11,11 @@ startYear            := Some(2014)
 licenses             := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 description          := "SBT plugin for building installers with Install4J."
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.10"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.7" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
 publishArtifact in(Test, packageBin) := false
 publishArtifact in(Test, packageDoc) := false

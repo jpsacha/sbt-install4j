@@ -4,7 +4,7 @@ sbt-install4j
 [![Build Status](https://travis-ci.org/jpsacha/sbt-install4j.svg?branch=master)](https://travis-ci.org/jpsacha/sbt-install4j)   [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j)
 
 
-[SBT] plugin for building installers with [Install4J].
+[SBT] plugin for building installers with [Install4J]   ![Install4J](https://www.ej-technologies.com/images/product_banners/install4j_medium.png)
 
 
 Usage
@@ -22,6 +22,11 @@ addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.3.0")
 
 ### build.sbt
 Sample use, add following to your `build.sbt`:
+
+```scala
+exportJars := true
+```
+This will export dependent JARs that will be copied to the installer
 
 ```scala
 enablePlugins(SBTInstall4J)
@@ -62,6 +67,9 @@ SBT settings provided by  `sbt-install4j` plugin:
    if `true` dependent jars will be copies, if `false` they will be not.
 
 * `install4jcFile` : File -  Location of the install4j's command line compiler `install4jc[.exe]`. It can be found in the `bin` directory of the install4j installation. Default can be set with environment variable `INSTALL4JC_FILE`.
+  ```scala
+  install4jcFile := file("C:/Program Files/install4j8/bin/install4jc.exe")
+  ```
 
 * `install4jProjectFile` : String - Relative path to the install4j project file that should be build.
 
@@ -102,6 +110,11 @@ On Linux:
 ```
 
 If the Install4J is installed in a different location you can specify location of the compiler using the environment variable `INSTALL4JC_FILE` or setting `install4jcFile`. For multi-platform builds it is preferred to use the environment variable `INSTALL4JC_FILE`.
+
+You can set the environment variable when starting SBT using `-D` option, for instance:
+```cmd
+$ sbt -DINSTALL4JC_FILE="C:/Program Files/install4j8/bin/install4jc.exe"
+```
 
 ## Tips & Tricks
 

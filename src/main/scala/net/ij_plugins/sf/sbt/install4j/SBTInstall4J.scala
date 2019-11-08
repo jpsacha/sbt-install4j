@@ -102,7 +102,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       val _v2 = install4jCopyDependedJars.value
       assert(_v2 != null)
 
-      val install4jCompiler = Defaults.install4jCompilerFile().getCanonicalFile
+      val install4jCompiler = install4jcFile.value.getCanonicalFile
       val install4jProject = new File(baseDirectory.value, install4jProjectFile.value).getCanonicalFile
       runInstall4J(
         install4jCompiler,
@@ -188,15 +188,25 @@ object SBTInstall4J extends sbt.AutoPlugin {
                            taskStreams: TaskStreams) {
     val logger = taskStreams.log
 
-    logger.debug(prefix + "compiler: " + compiler.getAbsolutePath)
+    logger.debug(prefix + "compiler          : " + compiler.getAbsolutePath)
     if (!compiler.exists) throw new IOException(
       "Install4J Compiler not found at: " + compiler.getAbsolutePath)
 
-    logger.debug(prefix + "project: " + project.getAbsolutePath)
+    logger.debug(prefix + "project           : " + project.getAbsolutePath)
     if (!project.exists) {
       throw new IOException("install4j project file not found: " +
         "" + project.getAbsolutePath)
     }
+
+    logger.debug(prefix + "release          : " + release)
+    logger.debug(prefix + "compilerVariables: " + compilerVariables.size)
+    compilerVariables.foreach { case (k, v) =>
+      logger.debug(prefix + s"  compilerVariable ${k}: $v")
+    }
+    logger.debug(prefix + "extraOptions     : " + extraOptions.size)
+    extraOptions.foreach { v => logger.debug(prefix + s"  extraOption: $v") }
+    logger.debug(prefix + "extraArgs        : " + extraArgs.size)
+    extraArgs.foreach { v => logger.debug(prefix + s"  extraArgs: $v") }
 
     val commandLine = mutable.ListBuffer.empty[String]
 
