@@ -18,14 +18,21 @@ package net.ij_plugins.sf.sbt.install4j
 
 import java.io.File
 
+import sbt.Keys.TaskStreams
+
 object Defaults {
 
   val INSTALL4J_HOME_ENV = "INSTALL4J_HOME"
   val INSTALL4JC_FILE_ENV = "INSTALL4JC_FILE"
 
-  def install4jHomeDir(): String = {
+  def install4jHomeDir(taskStreams: Option[TaskStreams] = None): String = {
+    val logger = taskStreams.map(_.log)
+
+    val install4JHomeEnv = System.getProperty(INSTALL4J_HOME_ENV, null)
+    logger.foreach(_.debug(s"INSTALL4JC_FILE_ENV: $install4JHomeEnv"))
+
     // First check for INSTALL4J_HOME, and if available use that
-    Option(System.getProperty(INSTALL4J_HOME_ENV, null)) match {
+    Option(install4JHomeEnv) match {
       case Some(s) => s
       case _ =>
         val osName = System.getProperty("os.name")
@@ -42,9 +49,17 @@ object Defaults {
     }
   }
 
-  def install4jCompilerFile(install4jHomeDir: String = Defaults.install4jHomeDir()): File = {
+
+  def install4jCompilerFile(install4jHomeDir: String = Defaults.install4jHomeDir(),
+                            taskStreams: Option[TaskStreams] = None): File = {
+
+    val logger = taskStreams.map(_.log)
+
+    val installJCFileEnv = System.getProperty(INSTALL4JC_FILE_ENV, null)
+    logger.foreach(_.debug(s"INSTALL4JC_FILE_ENV: $installJCFileEnv"))
+
     // First check for INSTALL4JC_PATH, and if available use that
-    Option(System.getProperty(INSTALL4JC_FILE_ENV, null)) match {
+    Option(installJCFileEnv) match {
       case Some(s) => new File(s)
       case _ => new File(install4jHomeDir, "bin/" + compilerName())
     }
