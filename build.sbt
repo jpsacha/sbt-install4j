@@ -23,11 +23,4 @@ publishArtifact in(Test, packageSrc) := false
 
 shellPrompt in ThisBuild := { state => "sbt:"+Project.extract(state).currentRef.project + "> " }
 
-publishTo := version {
-  version: String =>
-    if (version.contains("-SNAPSHOT"))
-      Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-    else
-      Some("Sonatype Nexus Releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-}.value
 
