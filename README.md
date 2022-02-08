@@ -16,19 +16,19 @@ Usage
 
 Import `sbt-install4j` plugin to use `install4j` command.
 
-```scala
+```sbt
 addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.3.1")
 ```
 
 ### build.sbt
 Sample use, add following to your `build.sbt`:
 
-```scala
+```sbt
 exportJars := true
 ```
 This will export dependent JARs that will be copied to the installer
 
-```scala
+```sbt
 enablePlugins(SBTInstall4J)
 install4jProjectFile := "installer/example.install4j"
 ```
@@ -67,7 +67,7 @@ SBT settings provided by  `sbt-install4j` plugin:
    if `true` dependent jars will be copies, if `false` they will be not.
 
 * `install4jcFile` : File -  Location of the install4j's command line compiler `install4jc[.exe]`. It can be found in the `bin` directory of the install4j installation. Default can be set with environment variable `INSTALL4JC_FILE`.
-  ```scala
+  ```sbt
   install4jcFile := file("C:/Program Files/install4j8/bin/install4jc.exe")
   ```
 
@@ -96,7 +96,6 @@ SBT settings provided by  `sbt-install4j` plugin:
 The `sbt-install4j` executes Install4J compiler. It needs to know its location. It will attempts to determine location base on the OS used. On Windows it is assumed to be:
 ```
 C:\Program Files\Install4J7\bin\intall4jc.exe
-
 ```
 
 On Mac OS X:
@@ -116,6 +115,10 @@ You can set the environment variable when starting SBT using `-D` option, for in
 $ sbt -DINSTALL4JC_FILE="C:/Program Files/install4j8/bin/install4jc.exe"
 ```
 
+## Example of a Complete Application
+
+[ScalaFX Ensemble] is an example of an application that is making use of `sbt-install4j` top create an installer with [Install4J] 
+
 ## Tips & Tricks
 
 To see debugging information set SBT logging level to `debug`:
@@ -134,4 +137,5 @@ sbt-install4j is licensed under [Apache 2.0 license][Apache2].
 
 [Install4J]: https://www.ej-technologies.com/products/install4j/overview.html
 [SBT]: http://www.scala-sbt.org/
+[ScalaFX Ensemble]: https://github.com/scalafx/scalafx-ensemble
 [Apache2]: https://www.apache.org/licenses/LICENSE-2.0.html
