@@ -13,8 +13,10 @@ project/plugins/project/
 .scala_dependencies
 
 # IntelliJ IDEA specific
-.idea
+.idea/
 
 #
 
 /example/installer/media
+.bsp/
+null/
