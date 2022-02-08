@@ -17,10 +17,9 @@ scalacOptions := Seq("-deprecation", "-unchecked")
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
-publishArtifact in(Test, packageBin) := false
-publishArtifact in(Test, packageDoc) := false
-publishArtifact in(Test, packageSrc) := false
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.11" % "test"
 
-shellPrompt in ThisBuild := { state => "sbt:"+Project.extract(state).currentRef.project + "> " }
-
+Test / packageBin / publishArtifact := false
+Test / packageDoc / publishArtifact := false
+Test / packageSrc / publishArtifact := false
 
