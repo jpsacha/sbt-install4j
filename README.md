@@ -1,7 +1,7 @@
 sbt-install4j
 =============
 
-[![Build Status](https://travis-ci.org/jpsacha/sbt-install4j.svg?branch=master)](https://travis-ci.org/jpsacha/sbt-install4j)   [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j)
+[![Scala CI](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml/badge.svg)](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml)   [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j)
 
 
 [SBT] plugin for building installers with [Install4J]   ![Install4J](https://www.ej-technologies.com/images/product_banners/install4j_medium.png)
