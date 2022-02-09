@@ -3,7 +3,7 @@ sbtPlugin := true
 
 name                 := "sbt-install4j"
 organization         := "com.github.jpsacha"
-version              := "1.4.0"
+version              := "1.4.0.1-SNAPSHOT"
 
 homepage             := Some(url("http://github.com/jpsacha/sbt-install4j"))
 organizationHomepage := Some(url("http://github.com/jpsacha"))
