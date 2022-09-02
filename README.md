@@ -95,7 +95,7 @@ SBT settings provided by  `sbt-install4j` plugin:
 
 The `sbt-install4j` executes Install4J compiler. It needs to know its location. It will attempts to determine location base on the OS used. On Windows it is assumed to be:
 ```
-C:\Program Files\Install4J7\bin\intall4jc.exe
+C:\Program Files\Install4J10\bin\intall4jc.exe
 ```
 
 On Mac OS X:
@@ -105,14 +105,16 @@ On Mac OS X:
 
 On Linux:
 ```
-/opt/install4j/bin/install4jc
+/opt/install4j10/bin/install4jc
 ```
 
-If the Install4J is installed in a different location you can specify location of the compiler using the environment variable `INSTALL4JC_FILE` or setting `install4jcFile`. For multi-platform builds it is preferred to use the environment variable `INSTALL4JC_FILE`.
+If the Install4J is installed in a different location you can specify location of the compiler using the environment
+variable `INSTALL4JC_FILE`, property `INSTALL4JC_FILE`, or SBT setting `install4jcFile`. For multi-platform builds it is
+preferred to use the environment variable `INSTALL4JC_FILE`.
 
-You can set the environment variable when starting SBT using `-D` option, for instance:
+You can set the property variable when starting SBT using `-D` option, for instance:
 ```cmd
-$ sbt -DINSTALL4JC_FILE="C:/Program Files/install4j8/bin/install4jc.exe"
+$ sbt -DINSTALL4JC_FILE="C:/Program Files/install4j11/bin/install4jc.exe"
 ```
 
 ## Example of a Complete Application
@@ -122,9 +124,9 @@ $ sbt -DINSTALL4JC_FILE="C:/Program Files/install4j8/bin/install4jc.exe"
 ## Tips & Tricks
 
 ### Compiling against Install4J API
-If you use Install4J API in your application and using version other then the default for `sbt-install4j` you will need to set environment variable `INSTALL4J_HOME`. 
+If you use Install4J API in your application and using version other than the default for `sbt-install4j` you will need to set environment variable `INSTALL4J_HOME`. 
 
-For instance, `sbt-install4j` uses Install4J 7 as default, but you have Install4J 9 installed, then set `INSTALL4J_HOME` the installation directory. On Windows that would typically be `C:\Program Files\install4j9`
+For instance, `sbt-install4j` uses Install4J 7 as default, but you have Install4J 9 installed, then set `INSTALL4J_HOME` the installation directory. On Windows that would typically be `C:\Program Files\install4j10`
 
 ### Debugging
 To see debugging information set SBT logging level to `debug`:
