@@ -17,7 +17,7 @@ Usage
 Import `sbt-install4j` plugin to use `install4j` command.
 
 ```sbt
-addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.4.0")
+addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.5.0")
 ```
 
 ### build.sbt
