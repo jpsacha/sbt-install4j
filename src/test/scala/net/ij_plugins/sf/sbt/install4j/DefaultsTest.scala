@@ -30,7 +30,7 @@ class DefaultsTest extends AnyFlatSpec {
 
     val install4jHomeDir = Defaults.install4jHomeDir()
 
-    install4jHomeDir should be(path_name)
+    install4jHomeDir should be(f)
   }
 
   it should "determine install4jCompilerFile from environment variable" in {
@@ -38,7 +38,7 @@ class DefaultsTest extends AnyFlatSpec {
     val path_name = f.getCanonicalPath
     System.setProperty(Defaults.INSTALL4JC_FILE_ENV, path_name)
 
-    val install4jCompilerFile = Defaults.install4jCompilerFile().getCanonicalPath
+    val install4jCompilerFile = Defaults.install4jCompilerFile(Defaults.install4jHomeDir()).getCanonicalPath
 
     install4jCompilerFile should be(path_name)
   }

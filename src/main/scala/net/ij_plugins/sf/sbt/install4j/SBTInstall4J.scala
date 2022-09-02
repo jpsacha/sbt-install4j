@@ -97,7 +97,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       "install4jCompilerVariables",
       "Override a compiler variable with a different value. " +
         "In the map, the `key` is variable's name, the `value` is variable's value."
-    )
+      )
   }
 
   import net.ij_plugins.sf.sbt.install4j.SBTInstall4J.autoImport.*
@@ -106,6 +106,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
     install4j := {
       // get the result of parsing
       val extraArgs: Seq[String] = spaceDelimited("<arg>").parsed
+      streams.value.log.debug("extraArgs: " + extraArgs.mkString(", "))
 
       // Run dependent tasks first
       val _v1 = (Compile / packageBin).value
@@ -124,14 +125,14 @@ object SBTInstall4J extends sbt.AutoPlugin {
         extraOptions = install4jExtraOptions.value,
         extraArgs = extraArgs,
         streams.value
-      )
+        )
     },
     install4jCopyDependedJars := copyDependedJars(
       (Runtime / dependencyClasspath).value,
       crossTarget.value,
       install4jCopyDependedJarsExclusions.value,
       streams.value
-    ),
+      ),
     install4jCopyDependedJarsExclusions := Seq(
       // Source archives
       """\S*-src\.\S*""",
@@ -143,16 +144,16 @@ object SBTInstall4J extends sbt.AutoPlugin {
       // Scaladoc
       """\S*-scaladoc\.\S*""",
       """\S*_scaladoc_\S*"""
-    ),
+      ),
     install4jCopyDependedJarsEnabled := true,
-    install4jExtraOptions            := Seq.empty[String],
-    install4jHomeDir                 := file(Defaults.install4jHomeDir()),
-    install4jcFile                   := file(Defaults.install4jCompilerFile().getCanonicalPath),
-    install4jProjectFile             := "installer/installer.install4j",
-    install4jVerbose                 := false,
-    install4jRelease                 := "",
-    install4jCompilerVariables       := Map.empty
-  )
+    install4jExtraOptions := Seq.empty[String],
+    install4jHomeDir := file(Defaults.install4jHomeDir().getCanonicalPath),
+    install4jcFile := file(Defaults.install4jCompilerFile(install4jHomeDir.value).getCanonicalPath),
+    install4jProjectFile := "installer/installer.install4j",
+    install4jVerbose := false,
+    install4jRelease := "",
+    install4jCompilerVariables := Map.empty
+    )
 
   private def prefix = "[sbt-install4j] "
 
