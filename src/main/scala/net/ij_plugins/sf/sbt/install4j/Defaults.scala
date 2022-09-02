@@ -57,9 +57,9 @@ object Defaults {
         val osName = System.getProperty("os.name")
 
         if (osName.startsWith("Windows"))
-          "C:/Program Files/install4j9"
+          "C:/Program Files/install4j10"
         else if (osName.equals("Linux"))
-          "/opt/install4j9"
+          "/opt/install4j10"
         else if (osName.equals("Mac OS X"))
           "/Applications/install4j.app/Contents/Resources/app"
         else
