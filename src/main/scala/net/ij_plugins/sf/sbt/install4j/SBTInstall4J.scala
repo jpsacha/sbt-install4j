@@ -16,6 +16,7 @@
 
 package net.ij_plugins.sf.sbt.install4j
 
+import net.ij_plugins.sf.sbt.install4j.Defaults as My
 import sbt.*
 import sbt.Keys.*
 import sbt.complete.DefaultParsers.*
@@ -27,7 +28,7 @@ import scala.sys.process.Process
 /** SBT plugin for building installers with Install4J. */
 object SBTInstall4J extends sbt.AutoPlugin {
 
-  object autoImport {
+  private object autoImport {
     lazy val install4j: InputKey[Unit] = InputKey[Unit](
       "install4j",
       "Builds Install4J project. " +
@@ -54,8 +55,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
       "install4jHomeDir",
       "Deprecated. Install4J installation directory. " +
         "It assumes that Install4J compiler is in subdirectory `bin`. " +
-        s"Default can be set with environment variable ${Defaults.INSTALL4J_HOME_ENV}. " +
-        s"This option is deprecated, use environment variable ${Defaults.INSTALL4JC_FILE_ENV} " +
+        s"Default can be set with environment variable ${My.INSTALL4J_HOME_ENV}. " +
+        s"This option is deprecated, use environment variable ${My.INSTALL4JC_FILE_ENV} " +
         "or setting `install4jcFile` instead."
     )
 
@@ -63,7 +64,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       "install4jcFile",
       "Location of the install4j's command line compiler `install4jc[.exe]`. " +
         "It can be found in the `bin` directory of the install4j installation. " +
-        s"Default can be set with environment variable ${Defaults.INSTALL4JC_FILE_ENV}." +
+        s"Default can be set with environment variable ${My.INSTALL4JC_FILE_ENV}." +
         ""
     )
 
@@ -97,7 +98,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       "install4jCompilerVariables",
       "Override a compiler variable with a different value. " +
         "In the map, the `key` is variable's name, the `value` is variable's value."
-      )
+    )
   }
 
   import net.ij_plugins.sf.sbt.install4j.SBTInstall4J.autoImport.*
@@ -125,14 +126,14 @@ object SBTInstall4J extends sbt.AutoPlugin {
         extraOptions = install4jExtraOptions.value,
         extraArgs = extraArgs,
         streams.value
-        )
+      )
     },
     install4jCopyDependedJars := copyDependedJars(
       (Runtime / dependencyClasspath).value,
       crossTarget.value,
       install4jCopyDependedJarsExclusions.value,
       streams.value
-      ),
+    ),
     install4jCopyDependedJarsExclusions := Seq(
       // Source archives
       """\S*-src\.\S*""",
@@ -144,16 +145,16 @@ object SBTInstall4J extends sbt.AutoPlugin {
       // Scaladoc
       """\S*-scaladoc\.\S*""",
       """\S*_scaladoc_\S*"""
-      ),
+    ),
     install4jCopyDependedJarsEnabled := true,
-    install4jExtraOptions := Seq.empty[String],
-    install4jHomeDir := file(Defaults.install4jHomeDir().getCanonicalPath),
-    install4jcFile := file(Defaults.install4jCompilerFile(install4jHomeDir.value).getCanonicalPath),
-    install4jProjectFile := "installer/installer.install4j",
-    install4jVerbose := false,
-    install4jRelease := "",
-    install4jCompilerVariables := Map.empty
-    )
+    install4jExtraOptions            := Seq.empty[String],
+    install4jHomeDir                 := file(My.install4jHomeDir().getCanonicalPath),
+    install4jcFile                   := file(My.install4jCompilerFile(install4jHomeDir.value).getCanonicalPath),
+    install4jProjectFile             := "installer/installer.install4j",
+    install4jVerbose                 := false,
+    install4jRelease                 := "",
+    install4jCompilerVariables       := Map.empty
+  )
 
   private def prefix = "[sbt-install4j] "
 
