@@ -15,7 +15,7 @@ scalaVersion := "2.12.17"
 
 scalacOptions := Seq("-deprecation", "-unchecked", "-Xsource:3")
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 
 Test / packageBin / publishArtifact := false
 Test / packageDoc / publishArtifact := false
