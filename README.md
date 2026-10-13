@@ -1,7 +1,7 @@
 sbt-install4j
 =============
 
-[![Scala CI](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml/badge.svg)](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml)   [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j)
+[![Scala CI](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml/badge.svg)](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml)   [![Maven Central](https://img.shields.io/badge/maven--central-1.5.0-blue)](https://central.sonatype.com/artifact/com.github.jpsacha/sbt-install4j_2.12_1.0)
 
 
 [SBT] plugin for building installers with
