@@ -4,7 +4,10 @@ sbt-install4j
 [![Scala CI](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml/badge.svg)](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml)   [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jpsacha/sbt-install4j)
 
 
-[SBT] plugin for building installers with [Install4J]   ![Install4J](https://www.ej-technologies.com/images/product_banners/install4j_medium.png)
+[SBT] plugin for building installers with
+[install4j, the multi-platform installer builder](https://www.ej-technologies.com/install4j).
+
+[![install4j multi-platform installer builder](https://www.ej-technologies.com/images/product_banners/install4j_medium.png)](https://www.ej-technologies.com/install4j)
 
 
 Usage
@@ -45,7 +48,7 @@ SBT tasks provided by  `sbt-install4j` plugin:
   It will build project defined in by setting `install4jProjectFile`
   
   It can take optional arguments that are passed by to the Install4J compiler. 
-  Refer to `install4jc` documentation in [Install4J Help](https://www.ej-technologies.com/resources/install4j/help/doc/#install4j.cli) for list of supported command line options. You can print option summary from SBT REPL using
+  Refer to `install4jc` documentation in [install4j Help](https://www.ej-technologies.com/resources/install4j/help/doc/#install4j.cli) for list of supported command line options. You can print option summary from SBT REPL using
   ```
   sbt> install4j --help
   ```
@@ -89,11 +92,11 @@ SBT settings provided by  `sbt-install4j` plugin:
   Override a compiler variable with a different value.
   In the map, the `key` is variable's name, the `value` is variable's value.
   
-* `install4jHomeDir` : File - __Deprecated__. Install4J installation directory. It assumes that Install4J compiler is in subdirectory `bin`. Default can be set with environment variable `INSTALL4J_HOME`. This option is deprecated, use environment variable `INSTALL4JC_FILE` or setting `install4jcFile` instead.
+* `install4jHomeDir` : File - __Deprecated__. install4j installation directory. It assumes that install4j compiler is in subdirectory `bin`. Default can be set with environment variable `INSTALL4J_HOME`. This option is deprecated, use environment variable `INSTALL4JC_FILE` or setting `install4jcFile` instead.
  
-## Determining location of Install4J compiler
+## Determining location of install4j compiler
 
-The `sbt-install4j` executes Install4J compiler. It needs to know its location. It will attempts to determine location base on the OS used. On Windows it is assumed to be:
+The `sbt-install4j` executes install4j compiler. It needs to know its location. It will attempts to determine location base on the OS used. On Windows it is assumed to be:
 ```
 C:\Program Files\Install4J10\bin\intall4jc.exe
 ```
@@ -108,7 +111,7 @@ On Linux:
 /opt/install4j10/bin/install4jc
 ```
 
-If the Install4J is installed in a different location you can specify location of the compiler using the environment
+If the install4j is installed in a different location you can specify location of the compiler using the environment
 variable `INSTALL4JC_FILE`, property `INSTALL4JC_FILE`, or SBT setting `install4jcFile`. For multi-platform builds it is
 preferred to use the environment variable `INSTALL4JC_FILE`.
 
@@ -119,14 +122,14 @@ $ sbt -DINSTALL4JC_FILE="C:/Program Files/install4j11/bin/install4jc.exe"
 
 ## Example of a Complete Application
 
-[ScalaFX Ensemble] is an example of an application that is making use of `sbt-install4j` top create an installer with [Install4J] 
+[ScalaFX Ensemble] is an example of an application that is making use of `sbt-install4j` top create an installer with [install4j] 
 
 ## Tips & Tricks
 
-### Compiling against Install4J API
-If you use Install4J API in your application and using version other than the default for `sbt-install4j` you will need to set environment variable `INSTALL4J_HOME`. 
+### Compiling against install4j API
+If you use install4j API in your application and using version other than the default for `sbt-install4j` you will need to set environment variable `INSTALL4J_HOME`. 
 
-For instance, `sbt-install4j` uses Install4J 7 as default, but you have Install4J 9 installed, then set `INSTALL4J_HOME` the installation directory. On Windows that would typically be `C:\Program Files\install4j10`
+For instance, `sbt-install4j` uses install4j 7 as default, but you have install4j 9 installed, then set `INSTALL4J_HOME` the installation directory. On Windows that would typically be `C:\Program Files\install4j10`
 
 ### Debugging
 To see debugging information set SBT logging level to `debug`:
@@ -143,7 +146,7 @@ sbt-install4j is licensed under [Apache 2.0 license][Apache2].
 
 
 
-[Install4J]: https://www.ej-technologies.com/products/install4j/overview.html
+[install4j]: https://www.ej-technologies.com/install4j
 [SBT]: http://www.scala-sbt.org/
 [ScalaFX Ensemble]: https://github.com/scalafx/scalafx-ensemble
 [Apache2]: https://www.apache.org/licenses/LICENSE-2.0.html
