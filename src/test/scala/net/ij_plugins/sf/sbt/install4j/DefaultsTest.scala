@@ -23,24 +23,36 @@ import java.nio.file.Files
 
 class DefaultsTest extends AnyFlatSpec {
 
+  /** Set system property `key` while executing `body`, then restore its previous state. */
+  private def withSysProp[T](key: String, value: String)(body: => T): T = {
+    val old = Option(System.getProperty(key))
+    System.setProperty(key, value)
+    try
+      body
+    finally
+      old.fold(System.clearProperty(key))(System.setProperty(key, _))
+  }
+
   it should "determine install4jHomeDir from environment variable" in {
     val f         = Files.createTempFile("_env_", "_env_").toFile
     val path_name = f.getCanonicalPath
-    System.setProperty(Defaults.INSTALL4J_HOME_ENV, path_name)
 
-    val install4jHomeDir = Defaults.install4jHomeDir()
+    val install4jHomeDir = withSysProp(Defaults.INSTALL4J_HOME_ENV, path_name) {
+      Defaults.install4jHomeDir()
+    }
 
-    install4jHomeDir should be(f)
+    install4jHomeDir.getCanonicalPath should be(path_name)
   }
 
   it should "determine install4jCompilerFile from environment variable" in {
     val f         = Files.createTempFile("_env_", "_env_").toFile
     val path_name = f.getCanonicalPath
-    System.setProperty(Defaults.INSTALL4JC_FILE_ENV, path_name)
 
-    val install4jCompilerFile = Defaults.install4jCompilerFile(Defaults.install4jHomeDir()).getCanonicalPath
+    val install4jCompilerFile = withSysProp(Defaults.INSTALL4JC_FILE_ENV, path_name) {
+      Defaults.install4jCompilerFile(Defaults.install4jHomeDir())
+    }
 
-    install4jCompilerFile should be(path_name)
+    install4jCompilerFile.getCanonicalPath should be(path_name)
   }
 
 }
