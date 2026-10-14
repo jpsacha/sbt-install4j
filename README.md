@@ -78,6 +78,12 @@ SBT settings provided by  `sbt-install4j` plugin:
 
 * `install4jDependedJarsDir` : String -
   Location where dependent jars will be copied.
+  Relative path is resolved against the project base directory. Default is `lib` in `crossTarget`,
+  for instance, `target/scala-2.13/lib`.
+  Setting a fixed location makes it easier to reference from the install4j project, for instance:
+  ```sbt
+  install4jDependedJarsDir := "target/install4j-lib"
+  ```
   
 * `install4jExtraOptions` : Seq[String] - "Additional command line options passed to the compiler."
 

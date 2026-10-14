@@ -75,7 +75,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     lazy val install4jDependedJarsDir: SettingKey[String] = SettingKey[String](
       "install4jDependedJarsDir",
-      "Location where dependent jars will be copied."
+      "Location where dependent jars will be copied. " +
+        "Relative path is resolved against the project base directory. Default is `lib` in `crossTarget`."
     )
 
     lazy val install4jExtraOptions: SettingKey[Seq[String]] = SettingKey[Seq[String]](
@@ -130,7 +131,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
     },
     install4jCopyDependedJars := copyDependedJars(
       (Runtime / dependencyClasspath).value,
-      crossTarget.value,
+      resolveDir(baseDirectory.value, install4jDependedJarsDir.value),
       install4jCopyDependedJarsExclusions.value,
       install4jCopyDependedJarsEnabled.value,
       streams.value
@@ -148,6 +149,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       """\S*_scaladoc_\S*"""
     ),
     install4jCopyDependedJarsEnabled := true,
+    install4jDependedJarsDir         := (crossTarget.value / "lib").getPath,
     install4jExtraOptions            := Seq.empty[String],
     install4jHomeDir                 := file(My.install4jHomeDir().getCanonicalPath),
     install4jcFile                   := file(My.install4jCompilerFile(install4jHomeDir.value).getCanonicalPath),
@@ -159,15 +161,20 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
   private def prefix = "[sbt-install4j] "
 
+  /** Resolve `path` against `baseDir`, unless it is already absolute. */
+  private def resolveDir(baseDir: File, path: String): File = {
+    val f = new File(path)
+    if (f.isAbsolute) f else new File(baseDir, path)
+  }
+
   private def copyDependedJars(
     libs: Seq[Attributed[File]],
-    crossTargetDir: File,
+    libDir: File,
     exclusions: Seq[String],
     enabled: Boolean,
     taskStreams: TaskStreams
   ): File = {
     val logger = taskStreams.log
-    val libDir = crossTargetDir / "lib"
     if (!enabled) {
       logger.debug(prefix + "Copying of dependent jars is disabled")
     } else libs.foreach { lib =>

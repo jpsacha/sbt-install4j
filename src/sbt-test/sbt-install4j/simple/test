@@ -10,3 +10,11 @@ $ exists target/scala-2.12/lib/simple_2.12-0.1.jar
 > set install4jCopyDependedJarsEnabled := false
 > install4jCopyDependedJars
 -$ exists target/scala-2.12/lib/simple_2.12-0.1.jar
+
+# Jars are copied to `install4jDependedJarsDir`, relative path is resolved against the base directory
+> clean
+> set install4jCopyDependedJarsEnabled := true
+> set install4jDependedJarsDir := "custom-lib"
+> install4jCopyDependedJars
+$ exists custom-lib/simple_2.12-0.1.jar
+-$ exists target/scala-2.12/lib/simple_2.12-0.1.jar

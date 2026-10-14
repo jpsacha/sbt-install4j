@@ -20,6 +20,8 @@ checkSettings := {
   assert(install4jRelease.value == "0.1", install4jRelease.value)
   assert(install4jCompilerVariables.value == Map("foo" -> "bar"), install4jCompilerVariables.value)
   assert(install4jExtraOptions.value == Seq("--test"), install4jExtraOptions.value)
+  val libDir = file(install4jDependedJarsDir.value)
+  assert(libDir == crossTarget.value / "lib", libDir)
   val compiler = install4jcFile.value.getName
   assert(compiler == "install4jc" || compiler == "install4jc.exe", compiler)
 }
