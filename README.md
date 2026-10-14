@@ -116,7 +116,7 @@ On Mac OS X:
 /Applications/install4j.app/Contents/Resources/app/bin/install4jc
 ```
 
-On Linux:
+On Linux and other systems:
 ```
 /opt/install4j13/bin/install4jc
 ```

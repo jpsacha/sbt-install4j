@@ -221,7 +221,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     logger.debug(prefix + "compiler          : " + compiler.getAbsolutePath)
     if (!compiler.exists) throw new IOException(
-      "Install4J Compiler not found at: " + compiler.getAbsolutePath
+      "Install4J Compiler not found at: " + compiler.getAbsolutePath + ". " +
+        s"Set its location using environment variable ${My.INSTALL4JC_FILE_ENV} or setting `install4jcFile`."
     )
 
     logger.debug(prefix + "project           : " + project.getAbsolutePath)

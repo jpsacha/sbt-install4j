@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 Jarek Sacha (jpsacha -at- gmail.com)
+ * Copyright 2014-2026 Jarek Sacha (jpsacha -at- gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,27 @@ class DefaultsTest extends AnyFlatSpec {
 
     val install4jCompilerFile = withSysProp(Defaults.INSTALL4JC_FILE_ENV, path_name) {
       Defaults.install4jCompilerFile(Defaults.install4jHomeDir())
+    }
+
+    install4jCompilerFile.getCanonicalPath should be(path_name)
+  }
+
+  it should "not fail for unrecognized OS, fall back to Unix default location" in {
+    val install4jHomeDir = withSysProp("os.name", "FreeBSD") {
+      Defaults.install4jHomeDir()
+    }
+
+    install4jHomeDir.getPath.replace('\\', '/') should be("/opt/install4j13")
+  }
+
+  it should "use INSTALL4JC_FILE for unrecognized OS" in {
+    val f         = Files.createTempFile("_env_", "_env_").toFile
+    val path_name = f.getCanonicalPath
+
+    val install4jCompilerFile = withSysProp("os.name", "FreeBSD") {
+      withSysProp(Defaults.INSTALL4JC_FILE_ENV, path_name) {
+        Defaults.install4jCompilerFile(Defaults.install4jHomeDir())
+      }
     }
 
     install4jCompilerFile.getCanonicalPath should be(path_name)

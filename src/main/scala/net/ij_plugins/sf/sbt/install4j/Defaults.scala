@@ -56,16 +56,15 @@ object Defaults {
       case _ =>
         val osName = System.getProperty("os.name")
 
+        // Do not throw for unrecognized OS, this is evaluated when the build loads.
+        // A missing compiler is reported when `install4j` task runs.
         if (osName.startsWith("Windows"))
           "C:/Program Files/install4j13"
-        else if (osName.equals("Linux"))
-          "/opt/install4j13"
         else if (osName.equals("Mac OS X"))
           "/Applications/install4j.app/Contents/Resources/app"
         else
-          throw new UnsupportedOperationException(
-            "Cannot determine default 'Install4jHomeDir'. Unsupported OS: " + osName
-            )
+          // Linux and other Unix-like systems
+          "/opt/install4j13"
     }
 
     debug(s"install4jHomeDir: $r")
