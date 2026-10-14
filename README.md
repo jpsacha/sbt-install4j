@@ -58,7 +58,11 @@ SBT tasks provided by  `sbt-install4j` plugin:
   ```
 
 * `install4jCopyDependedJars` : Task - 
-  Copies project dependencies to directory `install4jDependedJarsDir`
+  Copies project dependencies to directory `install4jDependedJarsDir`.
+  Jars copied by a previous run that are no longer dependencies are removed. 
+  Other files in that directory are not touched.
+  To be safe, run `clean` before building a release.
+  It removes all copied jars when `install4jDependedJarsDir` is under `target` (the default).
   
 
 SBT settings provided by  `sbt-install4j` plugin:

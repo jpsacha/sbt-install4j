@@ -177,19 +177,31 @@ object SBTInstall4J extends sbt.AutoPlugin {
     val logger = taskStreams.log
     if (!enabled) {
       logger.debug(prefix + "Copying of dependent jars is disabled")
-    } else libs.foreach { lib =>
-      val file = lib.data
-      if (file.exists) {
-        if (file.isDirectory) {
-          logger.warn(prefix + "Dependent directories not supported. Consider using `exportJars := true`")
-        } else if (exclusions.forall(!file.name.matches(_))) {
-          if (file.name.toLowerCase.endsWith(".jar")) {
-            IO.copyFile(file, libDir / file.name)
-          } else {
-            logger.warn(prefix + "Skipping non *.jar: " + file.absolutePath)
+    } else {
+      // Jars to copy, keyed by target name. If two jars have the same name, the last one wins.
+      val jars = mutable.LinkedHashMap.empty[String, File]
+      libs.foreach { lib =>
+        val file = lib.data
+        if (file.exists) {
+          if (file.isDirectory) {
+            logger.warn(prefix + "Dependent directories not supported. Consider using `exportJars := true`")
+          } else if (exclusions.forall(!file.name.matches(_))) {
+            if (file.name.toLowerCase.endsWith(".jar")) {
+              jars.get(file.name).foreach { other =>
+                logger.warn(prefix + s"Duplicate jar name, ${file.absolutePath} replaces ${other.absolutePath}")
+              }
+              jars(file.name) = file
+            } else {
+              logger.warn(prefix + "Skipping non *.jar: " + file.absolutePath)
+            }
           }
         }
       }
+
+      // Sync removes jars copied by a previous run that are no longer dependencies.
+      // Files that were not copied by this task are left alone.
+      val store = taskStreams.cacheStoreFactory.make("install4j-depended-jars")
+      Sync.sync(store)(jars.values.map(f => f -> libDir / f.name).toList)
     }
 
     libDir
