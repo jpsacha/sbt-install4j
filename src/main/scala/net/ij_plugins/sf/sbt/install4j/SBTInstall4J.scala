@@ -132,6 +132,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       (Runtime / dependencyClasspath).value,
       crossTarget.value,
       install4jCopyDependedJarsExclusions.value,
+      install4jCopyDependedJarsEnabled.value,
       streams.value
     ),
     install4jCopyDependedJarsExclusions := Seq(
@@ -162,11 +163,14 @@ object SBTInstall4J extends sbt.AutoPlugin {
     libs: Seq[Attributed[File]],
     crossTargetDir: File,
     exclusions: Seq[String],
+    enabled: Boolean,
     taskStreams: TaskStreams
   ): File = {
     val logger = taskStreams.log
     val libDir = crossTargetDir / "lib"
-    libs.foreach { lib =>
+    if (!enabled) {
+      logger.debug(prefix + "Copying of dependent jars is disabled")
+    } else libs.foreach { lib =>
       val file = lib.data
       if (file.exists) {
         if (file.isDirectory) {
