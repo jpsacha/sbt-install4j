@@ -28,7 +28,7 @@ import scala.sys.process.Process
 /** SBT plugin for building installers with Install4J. */
 object SBTInstall4J extends sbt.AutoPlugin {
 
-  private object autoImport {
+  object autoImport {
     lazy val install4j: InputKey[Unit] = InputKey[Unit](
       "install4j",
       "Builds Install4J project. " +

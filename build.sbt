@@ -1,4 +1,4 @@
-sbtPlugin := true
+enablePlugins(SbtPlugin)
 
 name         := "sbt-install4j"
 organization := "com.github.jpsacha"
@@ -19,3 +19,7 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % "test"
 Test / packageBin / publishArtifact := false
 Test / packageDoc / publishArtifact := false
 Test / packageSrc / publishArtifact := false
+
+// Scripted tests in `src/sbt-test`, run with `sbt scripted`
+scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+scriptedBufferLog := false
