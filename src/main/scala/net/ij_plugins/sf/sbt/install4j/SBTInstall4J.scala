@@ -217,6 +217,24 @@ object SBTInstall4J extends sbt.AutoPlugin {
     logger.debug(prefix + "extraArgs        : " + extraArgs.size)
     extraArgs.foreach { v => logger.debug(prefix + s"  extraArgs: $v") }
 
+    val commandLine =
+      buildCommandLine(compiler, project, verbose, release, compilerVariables, extraOptions, extraArgs)
+
+    logger.debug(prefix + "executing command: " + commandLine.mkString(" "))
+    val output = Process(commandLine).lineStream
+    output.foreach(println)
+  }
+
+  /** Assemble the `install4jc` command line. Each element is passed as a separate argument, no shell is involved. */
+  private[install4j] def buildCommandLine(
+    compiler: File,
+    project: File,
+    verbose: Boolean,
+    release: String,
+    compilerVariables: Map[String, String],
+    extraOptions: Seq[String],
+    extraArgs: Seq[String]
+  ): Seq[String] = {
     val commandLine = mutable.ListBuffer.empty[String]
 
     commandLine += compiler.getCanonicalPath
@@ -230,11 +248,10 @@ object SBTInstall4J extends sbt.AutoPlugin {
     // Compiler variables
     if (compilerVariables.nonEmpty) {
       commandLine += "-D"
-      commandLine += "\"" +
-        compilerVariables.map {
-          case (k, v) => k.trim + "=" + v.trim
-        }.mkString(",") +
-        "\""
+      // No quoting: the argument is passed to the process as is, quotes would become part of names/values
+      commandLine += compilerVariables.map {
+        case (k, v) => k.trim + "=" + v.trim
+      }.mkString(",")
     }
 
     commandLine += project.getPath
@@ -243,8 +260,6 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     commandLine ++= extraArgs
 
-    logger.debug(prefix + "executing command: " + commandLine.mkString(" "))
-    val output = Process(commandLine).lineStream
-    output.foreach(println)
+    commandLine.toList
   }
 }
