@@ -2,7 +2,7 @@ enablePlugins(SbtPlugin)
 
 name         := "sbt-install4j"
 organization := "com.github.jpsacha"
-version      := "1.5.0.1-SNAPSHOT"
+version      := "1.6.0"
 
 homepage             := Some(url("https://github.com/jpsacha/sbt-install4j"))
 organizationHomepage := Some(url("https://github.com/jpsacha"))
