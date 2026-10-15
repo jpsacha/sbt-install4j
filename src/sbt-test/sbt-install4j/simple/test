@@ -1,0 +1,28 @@
+# Plugin keys are visible in build.sbt and have expected values
+> checkSettings
+
+# Project jar is exported and copied to `lib`
+> install4jCopyDependedJars
+$ exists target/scala-2.12/lib/simple_2.12-0.1.jar
+
+# Nothing is copied when copying is disabled
+> clean
+> set install4jCopyDependedJarsEnabled := false
+> install4jCopyDependedJars
+-$ exists target/scala-2.12/lib/simple_2.12-0.1.jar
+
+# Jars are copied to `install4jDependedJarsDir`, relative path is resolved against the base directory
+> clean
+> set install4jCopyDependedJarsEnabled := true
+> set install4jDependedJarsDir := "custom-lib"
+> install4jCopyDependedJars
+$ exists custom-lib/simple_2.12-0.1.jar
+-$ exists target/scala-2.12/lib/simple_2.12-0.1.jar
+
+# Jars that are no longer dependencies are removed, files not copied by the plugin are kept
+$ touch custom-lib/manual.jar
+> set version := "0.2"
+> install4jCopyDependedJars
+$ exists custom-lib/simple_2.12-0.2.jar
+-$ exists custom-lib/simple_2.12-0.1.jar
+$ exists custom-lib/manual.jar

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 Jarek Sacha (jpsacha -at- gmail.com)
+ * Copyright 2014-2026 Jarek Sacha (jpsacha -at- gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +19,61 @@ package net.ij_plugins.sf.sbt.install4j
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
-import java.io.File
+import java.nio.file.Files
 
 class DefaultsTest extends AnyFlatSpec {
 
+  /** Set system property `key` while executing `body`, then restore its previous state. */
+  private def withSysProp[T](key: String, value: String)(body: => T): T = {
+    val old = Option(System.getProperty(key))
+    System.setProperty(key, value)
+    try
+      body
+    finally
+      old.fold(System.clearProperty(key))(System.setProperty(key, _))
+  }
+
   it should "determine install4jHomeDir from environment variable" in {
-    val f         = File.createTempFile("_env_", "_env_")
+    val f         = Files.createTempFile("_env_", "_env_").toFile
     val path_name = f.getCanonicalPath
-    System.setProperty(Defaults.INSTALL4J_HOME_ENV, path_name)
 
-    val install4jHomeDir = Defaults.install4jHomeDir()
+    val install4jHomeDir = withSysProp(Defaults.INSTALL4J_HOME_ENV, path_name) {
+      Defaults.install4jHomeDir()
+    }
 
-    install4jHomeDir should be(f)
+    install4jHomeDir.getCanonicalPath should be(path_name)
   }
 
   it should "determine install4jCompilerFile from environment variable" in {
-    val f         = File.createTempFile("_env_", "_env_")
+    val f         = Files.createTempFile("_env_", "_env_").toFile
     val path_name = f.getCanonicalPath
-    System.setProperty(Defaults.INSTALL4JC_FILE_ENV, path_name)
 
-    val install4jCompilerFile = Defaults.install4jCompilerFile(Defaults.install4jHomeDir()).getCanonicalPath
+    val install4jCompilerFile = withSysProp(Defaults.INSTALL4JC_FILE_ENV, path_name) {
+      Defaults.install4jCompilerFile(Defaults.install4jHomeDir())
+    }
 
-    install4jCompilerFile should be(path_name)
+    install4jCompilerFile.getCanonicalPath should be(path_name)
+  }
+
+  it should "not fail for unrecognized OS, fall back to Unix default location" in {
+    val install4jHomeDir = withSysProp("os.name", "FreeBSD") {
+      Defaults.install4jHomeDir()
+    }
+
+    install4jHomeDir.getPath.replace('\\', '/') should be("/opt/install4j13")
+  }
+
+  it should "use INSTALL4JC_FILE for unrecognized OS" in {
+    val f         = Files.createTempFile("_env_", "_env_").toFile
+    val path_name = f.getCanonicalPath
+
+    val install4jCompilerFile = withSysProp("os.name", "FreeBSD") {
+      withSysProp(Defaults.INSTALL4JC_FILE_ENV, path_name) {
+        Defaults.install4jCompilerFile(Defaults.install4jHomeDir())
+      }
+    }
+
+    install4jCompilerFile.getCanonicalPath should be(path_name)
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 Jarek Sacha (jpsacha -at- gmail.com)
+ * Copyright 2014-2026 Jarek Sacha (jpsacha -at- gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package net.ij_plugins.sf.sbt.install4j
 
+import net.ij_plugins.sf.sbt.install4j.Defaults as My
 import sbt.*
 import sbt.Keys.*
 import sbt.complete.DefaultParsers.*
@@ -54,8 +55,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
       "install4jHomeDir",
       "Deprecated. Install4J installation directory. " +
         "It assumes that Install4J compiler is in subdirectory `bin`. " +
-        s"Default can be set with environment variable ${Defaults.INSTALL4J_HOME_ENV}. " +
-        s"This option is deprecated, use environment variable ${Defaults.INSTALL4JC_FILE_ENV} " +
+        s"Default can be set with environment variable ${My.INSTALL4J_HOME_ENV}. " +
+        s"This option is deprecated, use environment variable ${My.INSTALL4JC_FILE_ENV} " +
         "or setting `install4jcFile` instead."
     )
 
@@ -63,7 +64,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       "install4jcFile",
       "Location of the install4j's command line compiler `install4jc[.exe]`. " +
         "It can be found in the `bin` directory of the install4j installation. " +
-        s"Default can be set with environment variable ${Defaults.INSTALL4JC_FILE_ENV}." +
+        s"Default can be set with environment variable ${My.INSTALL4JC_FILE_ENV}." +
         ""
     )
 
@@ -74,7 +75,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     lazy val install4jDependedJarsDir: SettingKey[String] = SettingKey[String](
       "install4jDependedJarsDir",
-      "Location where dependent jars will be copied."
+      "Location where dependent jars will be copied. " +
+        "Relative path is resolved against the project base directory. Default is `lib` in `crossTarget`."
     )
 
     lazy val install4jExtraOptions: SettingKey[Seq[String]] = SettingKey[Seq[String]](
@@ -97,7 +99,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
       "install4jCompilerVariables",
       "Override a compiler variable with a different value. " +
         "In the map, the `key` is variable's name, the `value` is variable's value."
-      )
+    )
   }
 
   import net.ij_plugins.sf.sbt.install4j.SBTInstall4J.autoImport.*
@@ -125,14 +127,15 @@ object SBTInstall4J extends sbt.AutoPlugin {
         extraOptions = install4jExtraOptions.value,
         extraArgs = extraArgs,
         streams.value
-        )
+      )
     },
     install4jCopyDependedJars := copyDependedJars(
       (Runtime / dependencyClasspath).value,
-      crossTarget.value,
+      resolveDir(baseDirectory.value, install4jDependedJarsDir.value),
       install4jCopyDependedJarsExclusions.value,
+      install4jCopyDependedJarsEnabled.value,
       streams.value
-      ),
+    ),
     install4jCopyDependedJarsExclusions := Seq(
       // Source archives
       """\S*-src\.\S*""",
@@ -144,40 +147,61 @@ object SBTInstall4J extends sbt.AutoPlugin {
       // Scaladoc
       """\S*-scaladoc\.\S*""",
       """\S*_scaladoc_\S*"""
-      ),
+    ),
     install4jCopyDependedJarsEnabled := true,
-    install4jExtraOptions := Seq.empty[String],
-    install4jHomeDir := file(Defaults.install4jHomeDir().getCanonicalPath),
-    install4jcFile := file(Defaults.install4jCompilerFile(install4jHomeDir.value).getCanonicalPath),
-    install4jProjectFile := "installer/installer.install4j",
-    install4jVerbose := false,
-    install4jRelease := "",
-    install4jCompilerVariables := Map.empty
-    )
+    install4jDependedJarsDir         := (crossTarget.value / "lib").getPath,
+    install4jExtraOptions            := Seq.empty[String],
+    install4jHomeDir                 := file(My.install4jHomeDir().getCanonicalPath),
+    install4jcFile                   := file(My.install4jCompilerFile(install4jHomeDir.value).getCanonicalPath),
+    install4jProjectFile             := "installer/installer.install4j",
+    install4jVerbose                 := false,
+    install4jRelease                 := "",
+    install4jCompilerVariables       := Map.empty
+  )
 
   private def prefix = "[sbt-install4j] "
 
+  /** Resolve `path` against `baseDir`, unless it is already absolute. */
+  private def resolveDir(baseDir: File, path: String): File = {
+    val f = new File(path)
+    if (f.isAbsolute) f else new File(baseDir, path)
+  }
+
   private def copyDependedJars(
     libs: Seq[Attributed[File]],
-    crossTargetDir: File,
+    libDir: File,
     exclusions: Seq[String],
+    enabled: Boolean,
     taskStreams: TaskStreams
   ): File = {
     val logger = taskStreams.log
-    val libDir = crossTargetDir / "lib"
-    libs.foreach { lib =>
-      val file = lib.data
-      if (file.exists) {
-        if (file.isDirectory) {
-          logger.warn(prefix + "Dependent directories not supported. Consider using `exportJars := true`")
-        } else if (exclusions.forall(!file.name.matches(_))) {
-          if (file.name.toLowerCase.endsWith(".jar")) {
-            IO.copyFile(file, libDir / file.name)
-          } else {
-            logger.warn(prefix + "Skipping non *.jar: " + file.absolutePath)
+    if (!enabled) {
+      logger.debug(prefix + "Copying of dependent jars is disabled")
+    } else {
+      // Jars to copy, keyed by target name. If two jars have the same name, the last one wins.
+      val jars = mutable.LinkedHashMap.empty[String, File]
+      libs.foreach { lib =>
+        val file = lib.data
+        if (file.exists) {
+          if (file.isDirectory) {
+            logger.warn(prefix + "Dependent directories not supported. Consider using `exportJars := true`")
+          } else if (exclusions.forall(!file.name.matches(_))) {
+            if (file.name.toLowerCase.endsWith(".jar")) {
+              jars.get(file.name).foreach { other =>
+                logger.warn(prefix + s"Duplicate jar name, ${file.absolutePath} replaces ${other.absolutePath}")
+              }
+              jars(file.name) = file
+            } else {
+              logger.warn(prefix + "Skipping non *.jar: " + file.absolutePath)
+            }
           }
         }
       }
+
+      // Sync removes jars copied by a previous run that are no longer dependencies.
+      // Files that were not copied by this task are left alone.
+      val store = taskStreams.cacheStoreFactory.make("install4j-depended-jars")
+      Sync.sync(store)(jars.values.map(f => f -> libDir / f.name).toList)
     }
 
     libDir
@@ -197,7 +221,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     logger.debug(prefix + "compiler          : " + compiler.getAbsolutePath)
     if (!compiler.exists) throw new IOException(
-      "Install4J Compiler not found at: " + compiler.getAbsolutePath
+      "Install4J Compiler not found at: " + compiler.getAbsolutePath + ". " +
+        s"Set its location using environment variable ${My.INSTALL4JC_FILE_ENV} or setting `install4jcFile`."
     )
 
     logger.debug(prefix + "project           : " + project.getAbsolutePath)
@@ -216,6 +241,24 @@ object SBTInstall4J extends sbt.AutoPlugin {
     logger.debug(prefix + "extraArgs        : " + extraArgs.size)
     extraArgs.foreach { v => logger.debug(prefix + s"  extraArgs: $v") }
 
+    val commandLine =
+      buildCommandLine(compiler, project, verbose, release, compilerVariables, extraOptions, extraArgs)
+
+    logger.debug(prefix + "executing command: " + commandLine.mkString(" "))
+    val output = Process(commandLine).lineStream
+    output.foreach(println)
+  }
+
+  /** Assemble the `install4jc` command line. Each element is passed as a separate argument, no shell is involved. */
+  private[install4j] def buildCommandLine(
+    compiler: File,
+    project: File,
+    verbose: Boolean,
+    release: String,
+    compilerVariables: Map[String, String],
+    extraOptions: Seq[String],
+    extraArgs: Seq[String]
+  ): Seq[String] = {
     val commandLine = mutable.ListBuffer.empty[String]
 
     commandLine += compiler.getCanonicalPath
@@ -229,11 +272,10 @@ object SBTInstall4J extends sbt.AutoPlugin {
     // Compiler variables
     if (compilerVariables.nonEmpty) {
       commandLine += "-D"
-      commandLine += "\"" +
-        compilerVariables.map {
-          case (k, v) => k.trim + "=" + v.trim
-        }.mkString(",") +
-        "\""
+      // No quoting: the argument is passed to the process as is, quotes would become part of names/values
+      commandLine += compilerVariables.map {
+        case (k, v) => k.trim + "=" + v.trim
+      }.mkString(",")
     }
 
     commandLine += project.getPath
@@ -242,8 +284,6 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     commandLine ++= extraArgs
 
-    logger.debug(prefix + "executing command: " + commandLine.mkString(" "))
-    val output = Process(commandLine).lineStream
-    output.foreach(println)
+    commandLine.toList
   }
 }
