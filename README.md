@@ -1,7 +1,7 @@
 sbt-install4j
 =============
 
-[![Scala CI](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml/badge.svg)](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml)   [![Maven Central](https://img.shields.io/badge/maven--central-1.5.0-blue)](https://central.sonatype.com/artifact/com.github.jpsacha/sbt-install4j_2.12_1.0)
+[![Scala CI](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml/badge.svg)](https://github.com/jpsacha/sbt-install4j/actions/workflows/scala.yml)   [![Maven Central](https://img.shields.io/badge/maven--central-1.6.0-blue)](https://central.sonatype.com/artifact/com.github.jpsacha/sbt-install4j_2.12_1.0)
 
 
 [SBT] plugin for building installers with
@@ -20,7 +20,7 @@ Usage
 Import `sbt-install4j` plugin to use `install4j` command.
 
 ```sbt
-addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.5.0")
+addSbtPlugin("com.github.jpsacha" % "sbt-install4j" % "1.6.0")
 ```
 
 ### build.sbt
