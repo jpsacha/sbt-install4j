@@ -13,7 +13,8 @@ sbt-install4j
 Usage
 -----
 
-`sbt-install4j` is available for sbt 1.9 or newer. For older sbt 1.x use `sbt-install4j` 1.5.0.
+`sbt-install4j` is available for sbt 1.9 or newer and for sbt 2 (sbt 2 requires JDK 17 or newer).
+For older sbt 1.x use `sbt-install4j` 1.5.0.
 
 ### project/plugins.sbt
 

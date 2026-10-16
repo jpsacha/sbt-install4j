@@ -1,28 +1,42 @@
-# Plugin keys are visible in build.sbt and have expected values
+# Plugin keys are visible in build.sbt and have expected values, including default `install4jDependedJarsDir`
 > checkSettings
 
-# Project jar is exported and copied to `lib`
-> install4jCopyDependedJars
-$ exists target/scala-2.12/lib/simple_2.12-0.1.jar
-
-# Nothing is copied when copying is disabled
-> clean
-> set install4jCopyDependedJarsEnabled := false
-> install4jCopyDependedJars
--$ exists target/scala-2.12/lib/simple_2.12-0.1.jar
-
-# Jars are copied to `install4jDependedJarsDir`, relative path is resolved against the base directory
-> clean
-> set install4jCopyDependedJarsEnabled := true
+# File checks use a fixed directory, `target` layout differs between sbt 1 and sbt 2.
+# Relative path is resolved against the base directory.
 > set install4jDependedJarsDir := "custom-lib"
+
+# Project jar is exported and copied to `install4jDependedJarsDir`
 > install4jCopyDependedJars
 $ exists custom-lib/simple_2.12-0.1.jar
--$ exists target/scala-2.12/lib/simple_2.12-0.1.jar
+
+# Task is not cached, it copies again when inputs did not change (sbt 2 caches tasks by default)
+$ delete custom-lib
+> install4jCopyDependedJars
+$ exists custom-lib/simple_2.12-0.1.jar
+
+# Nothing is copied when copying is disabled
+$ delete custom-lib
+> set install4jCopyDependedJarsEnabled := false
+> install4jCopyDependedJars
+-$ exists custom-lib/simple_2.12-0.1.jar
+> set install4jCopyDependedJarsEnabled := true
 
 # Jars that are no longer dependencies are removed, files not copied by the plugin are kept
+> install4jCopyDependedJars
 $ touch custom-lib/manual.jar
 > set version := "0.2"
 > install4jCopyDependedJars
 $ exists custom-lib/simple_2.12-0.2.jar
 -$ exists custom-lib/simple_2.12-0.1.jar
 $ exists custom-lib/manual.jar
+
+# `install4j` runs the compiler, faked by a script that records its calls
+$ exec chmod +x fake-install4jc
+> set install4jcFile := baseDirectory.value / "fake-install4jc"
+> install4j
+$ exists install4jc-calls.txt
+
+# Task is not cached, compiler runs again when inputs did not change
+$ delete install4jc-calls.txt
+> install4j
+$ exists install4jc-calls.txt

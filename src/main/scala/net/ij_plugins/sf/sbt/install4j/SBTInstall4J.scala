@@ -17,13 +17,14 @@
 package net.ij_plugins.sf.sbt.install4j
 
 import net.ij_plugins.sf.sbt.install4j.Defaults as My
+import net.ij_plugins.sf.sbt.install4j.PluginCompat.*
 import sbt.*
 import sbt.Keys.*
 import sbt.complete.DefaultParsers.*
 
 import java.io.{File, IOException}
 import scala.collection.mutable
-import scala.sys.process.Process
+import scala.sys.process.{Process, ProcessLogger}
 
 /** SBT plugin for building installers with Install4J. */
 object SBTInstall4J extends sbt.AutoPlugin {
@@ -129,13 +130,17 @@ object SBTInstall4J extends sbt.AutoPlugin {
         streams.value
       )
     },
-    install4jCopyDependedJars := copyDependedJars(
-      (Runtime / dependencyClasspath).value,
-      resolveDir(baseDirectory.value, install4jDependedJarsDir.value),
-      install4jCopyDependedJarsExclusions.value,
-      install4jCopyDependedJarsEnabled.value,
-      streams.value
-    ),
+    // Uncached: copies files, has to run every time (sbt 2 caches tasks by default)
+    install4jCopyDependedJars := Def.uncached {
+      implicit val conv: xsbti.FileConverter = fileConverter.value
+      copyDependedJars(
+        toFiles((Runtime / dependencyClasspath).value),
+        resolveDir(baseDirectory.value, install4jDependedJarsDir.value),
+        install4jCopyDependedJarsExclusions.value,
+        install4jCopyDependedJarsEnabled.value,
+        streams.value
+      )
+    },
     install4jCopyDependedJarsExclusions := Seq(
       // Source archives
       """\S*-src\.\S*""",
@@ -168,7 +173,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
   }
 
   private def copyDependedJars(
-    libs: Seq[Attributed[File]],
+    libs: Seq[File],
     libDir: File,
     exclusions: Seq[String],
     enabled: Boolean,
@@ -180,8 +185,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
     } else {
       // Jars to copy, keyed by target name. If two jars have the same name, the last one wins.
       val jars = mutable.LinkedHashMap.empty[String, File]
-      libs.foreach { lib =>
-        val file = lib.data
+      libs.foreach { file =>
         if (file.exists) {
           if (file.isDirectory) {
             logger.warn(prefix + "Dependent directories not supported. Consider using `exportJars := true`")
@@ -245,8 +249,8 @@ object SBTInstall4J extends sbt.AutoPlugin {
       buildCommandLine(compiler, project, verbose, release, compilerVariables, extraOptions, extraArgs)
 
     logger.debug(prefix + "executing command: " + commandLine.mkString(" "))
-    val output = Process(commandLine).lineStream
-    output.foreach(println)
+    val exitCode = Process(commandLine).!(ProcessLogger(line => logger.info(line), line => logger.warn(line)))
+    if (exitCode != 0) throw new IOException(s"install4j compiler failed with exit code $exitCode")
   }
 
   /** Assemble the `install4jc` command line. Each element is passed as a separate argument, no shell is involved. */

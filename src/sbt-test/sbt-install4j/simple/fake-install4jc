@@ -1,0 +1,3 @@
+#!/bin/sh
+# Fake install4j compiler for scripted tests, records arguments of each call
+echo "$@" >> "$(dirname "$0")/install4jc-calls.txt"
