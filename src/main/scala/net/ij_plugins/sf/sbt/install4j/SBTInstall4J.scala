@@ -33,7 +33,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
     lazy val install4j: InputKey[Unit] = InputKey[Unit](
       "install4j",
       "Builds Install4J project. " +
-        "It can take optional argument that are passed by to the Install4J compiler. " +
+        "It can take optional arguments that are passed to the Install4J compiler. " +
         "Refer to `install4jc` documentation in Install4J Help for list of supported command line options."
     )
 
@@ -49,7 +49,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     lazy val install4jCopyDependedJarsEnabled: SettingKey[Boolean] = SettingKey[Boolean](
       "install4jCopyDependedJarsEnabled",
-      "if `true` dependent jars will be copies, if `false` they will be not."
+      "if `true` dependent jars will be copied, if `false` they will be not."
     )
 
     lazy val install4jHomeDir: SettingKey[File] = SettingKey[File](
@@ -71,7 +71,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     lazy val install4jProjectFile: SettingKey[String] = SettingKey[String](
       "install4jProjectFile",
-      "Relative path to the install4j project file that should be build."
+      "Relative path to the install4j project file that should be built."
     )
 
     lazy val install4jDependedJarsDir: SettingKey[String] = SettingKey[String](
