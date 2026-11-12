@@ -95,7 +95,7 @@ Settings
 | [`install4jCompilerVariables`](#install4jcompilervariables)                   | `Map[String, String]` | empty                                                                        |
 | [`install4jVerbose`](#install4jverbose)                                       | `Boolean`             | `false`                                                                      |
 | [`install4jExtraOptions`](#install4jextraoptions)                             | `Seq[String]`         | empty                                                                        |
-| [`install4jHomeDir`](#install4jhomedir)                                       | `File`                | __Deprecated__, see [compiler location](#location-of-the-install4j-compiler) |
+| [`install4jHomeDir`](#install4jhomedir)                                       | `File`                | see [compiler location](#location-of-the-install4j-compiler)                 |
 
 ### `install4jProjectFile`
 
@@ -165,8 +165,14 @@ Additional command line options passed to the compiler.
 
 ### `install4jHomeDir`
 
-__Deprecated__, use [`install4jcFile`](#install4jcfile) or environment variable `INSTALL4JC_FILE` instead.
-Install4j installation directory, the compiler is assumed to be in its `bin` subdirectory.
+The install4j installation directory. It is used for the default of [`install4jcFile`](#install4jcfile),
+the compiler in its `bin` subdirectory, and to locate other install4j files, for instance
+[`i4jruntime.jar`](#compiling-against-the-install4j-api).
+See [Location of the install4j Compiler](#location-of-the-install4j-compiler) for how the default is determined.
+
+```sbt
+install4jHomeDir := file("C:/Program Files/install4j12")
+```
 
 Location of the install4j Compiler
 ----------------------------------
@@ -176,17 +182,24 @@ The location of the install4j compiler is determined in the following order:
 1. Setting `install4jcFile`.
 2. System property `INSTALL4JC_FILE`.
 3. Environment variable `INSTALL4JC_FILE`.
-4. `bin/install4jc[.exe]` in the directory given by system property or environment variable `INSTALL4J_HOME`
-   (deprecated).
-5. Default location for the OS:
+4. `bin/install4jc[.exe]` in the install4j installation directory, [`install4jHomeDir`](#install4jhomedir).
 
-   | OS                     | Default location                                             |
-   |------------------------|--------------------------------------------------------------|
-   | Windows                | `C:\Program Files\install4j13\bin\install4jc.exe`             |
-   | macOS                  | `/Applications/install4j.app/Contents/Resources/app/bin/install4jc` |
-   | Linux and other        | `/opt/install4j13/bin/install4jc`                             |
+The install4j installation directory is determined in the following order:
 
-For multi-platform builds the environment variable `INSTALL4JC_FILE` is preferred.
+1. Setting `install4jHomeDir`.
+2. System property `INSTALL4J_HOME`.
+3. Environment variable `INSTALL4J_HOME`.
+4. Default location for the OS:
+
+   | OS              | Default installation directory                      |
+   |-----------------|-----------------------------------------------------|
+   | Windows         | `C:\Program Files\install4j13`                      |
+   | macOS           | `/Applications/install4j.app/Contents/Resources/app` |
+   | Linux and other | `/opt/install4j13`                                  |
+
+For multi-platform builds the environment variables `INSTALL4J_HOME` or `INSTALL4JC_FILE` are preferred.
+`INSTALL4JC_FILE` does not change the installation directory, if you also need other install4j files,
+set `INSTALL4J_HOME` instead.
 A system property can be set when starting sbt:
 
 ```
@@ -217,8 +230,9 @@ Compile / unmanagedJars += Attributed.blank[xsbti.HashedVirtualFileRef](
 install4jCopyDependedJarsExclusions += """i4jruntime\.jar"""
 ```
 
-If install4j is not in the default location, set the environment variable `INSTALL4J_HOME` to its installation
-directory. For instance, with install4j 12 on Windows that is typically `C:\Program Files\install4j12`.
+If install4j is not in the default location, set the environment variable `INSTALL4J_HOME` or the setting
+[`install4jHomeDir`](#install4jhomedir) to its installation directory.
+For instance, with install4j 12 on Windows that is typically `C:\Program Files\install4j12`.
 
 ### Debugging
 

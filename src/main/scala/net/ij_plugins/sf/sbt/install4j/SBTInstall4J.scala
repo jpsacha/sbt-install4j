@@ -54,11 +54,9 @@ object SBTInstall4J extends sbt.AutoPlugin {
 
     lazy val install4jHomeDir: SettingKey[File] = SettingKey[File](
       "install4jHomeDir",
-      "Deprecated. Install4J installation directory. " +
-        "It assumes that Install4J compiler is in subdirectory `bin`. " +
-        s"Default can be set with environment variable ${My.INSTALL4J_HOME_ENV}. " +
-        s"This option is deprecated, use environment variable ${My.INSTALL4JC_FILE_ENV} " +
-        "or setting `install4jcFile` instead."
+      "Install4J installation directory. " +
+        "Used for the default of `install4jcFile` and to locate files such as `resource/i4jruntime.jar`. " +
+        s"Default can be set with environment variable ${My.INSTALL4J_HOME_ENV}."
     )
 
     lazy val install4jcFile: SettingKey[File] = SettingKey[File](
