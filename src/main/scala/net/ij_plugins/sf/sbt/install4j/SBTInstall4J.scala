@@ -109,7 +109,7 @@ object SBTInstall4J extends sbt.AutoPlugin {
     install4j := {
       // get the result of parsing
       val extraArgs: Seq[String] = spaceDelimited("<arg>").parsed
-      streams.value.log.debug("extraArgs: " + extraArgs.mkString(", "))
+      streams.value.log.debug(prefix + "extraArgs: "+ extraArgs.mkString(", "))
 
       // Run dependent tasks first
       val _v1 = (Compile / packageBin).value
