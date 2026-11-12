@@ -15,6 +15,7 @@ Contents:
 * [Settings](#settings)
 * [Location of the install4j Compiler](#location-of-the-install4j-compiler)
 * [Tips & Tricks](#tips--tricks)
+* [Contributing](#contributing)
 
 Quick Start
 -----------
@@ -228,6 +229,11 @@ and look in the log for lines prefixed with `[sbt-install4j]`:
 sbt> debug
 sbt> install4j
 ```
+
+Contributing
+------------
+
+Contributions are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 License
 -------
